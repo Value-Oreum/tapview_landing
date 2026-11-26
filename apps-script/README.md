@@ -35,6 +35,9 @@
 > 코드를 고친 뒤에는 **배포 ▸ 배포 관리 ▸ 연필 ▸ 버전: 새 버전 ▸ 배포**로 같은 URL을 유지하세요.
 
 ## 5. (선택) tapview@tapview.app 이름으로 보내기
+> 새로 만든 구글 계정은 2단계 인증·앱 비밀번호가 약 7일 뒤에 열릴 수 있습니다. 그 전에는 1번(메일 전달)과 4번(`FROM_ALIAS` 속성)만 해 두세요.
+> 그러면 메일은 tapview26 주소로 나가지만 **답장은 tapview@tapview.app으로** 옵니다. 2·3번은 계정이 열린 뒤에 하면 됩니다.
+
 1. Namecheap ▸ Domain List ▸ tapview.app ▸ **Manage ▸ Redirect Email** ▸ Alias `tapview` → Forward to `tapview26@gmail.com`
 2. Google 계정 ▸ 보안 ▸ **2단계 인증** 켜기 → **앱 비밀번호** 만들기
 3. Gmail ▸ 설정 ▸ 계정 및 가져오기 ▸ **다른 주소에서 메일 보내기 ▸ 다른 이메일 주소 추가**

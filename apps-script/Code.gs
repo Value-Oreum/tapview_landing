@@ -5,7 +5,7 @@
  *   SECRET          Vercel APPS_SCRIPT_SECRET 과 같은 값 (필수)
  *   OPERATOR_EMAIL  새 신청 알림을 받을 주소 (예: tapview26@gmail.com)
  *   SITE_URL        https://tapview.app
- *   FROM_ALIAS      tapview@tapview.app  (Gmail '다른 주소에서 보내기' 설정을 마친 뒤에만 넣기)
+ *   FROM_ALIAS      tapview@tapview.app  (넣어 두면 답장 주소로 쓰고, Gmail '다른 주소에서 보내기'를 마치면 보내는 주소로도 씀)
  *
  * 처음 한 번 setup() 실행 → 웹 앱으로 배포(실행: 나, 액세스: 모든 사용자) → 배포 URL을 Vercel APPS_SCRIPT_URL 로.
  */
@@ -182,6 +182,8 @@ function send_(to, subject, html, text) {
     opts.replyTo = alias;
     GmailApp.sendEmail(to, subject, text, opts);
   } else {
+    // 별칭 등록 전에는 tapview26 주소로 보내되, 답장은 tapview@tapview.app으로 오게 한다
+    if (alias) opts.replyTo = alias;
     MailApp.sendEmail(to, subject, text, opts);
   }
 }
