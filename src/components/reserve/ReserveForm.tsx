@@ -368,7 +368,7 @@ export default function ReserveForm() {
 
         {error && (
           <div data-error tabIndex={-1} role="alert" className="flex items-center gap-4 rounded-[22px] border border-tap/40 bg-tap/10 p-4 text-[1.0625rem] text-paper outline-none">
-            <img src="/dog/dog-dazed.webp" alt="" aria-hidden width={512} height={512} className="h-16 w-16 shrink-0" />
+            <img src="/dog/dog-dazed.webp" alt="" aria-hidden width={320} height={320} loading="lazy" className="h-16 w-16 shrink-0" />
             {error}
           </div>
         )}

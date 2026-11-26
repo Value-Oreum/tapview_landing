@@ -24,10 +24,10 @@ export default function SplashScreen({ lang = "ko" }: { lang?: Lang }) {
         </span>
       </div>
       <img
-        src="/brand/logo-white.png"
+        src="/brand/logo-white.webp"
         alt=""
-        width={640}
-        height={222}
+        width={400}
+        height={139}
         className="absolute top-[9%] left-1/2 w-[46cqw] -translate-x-1/2 opacity-95"
         draggable={false}
       />

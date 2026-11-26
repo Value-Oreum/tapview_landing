@@ -1,0 +1,32 @@
+# 탭뷰 TapView
+
+> 탭뷰(TapView)는 노안이 시작되는 45세 이상을 위한 안드로이드 읽기 보조 앱입니다. 두 화면 중 편한 쪽을 2~3번 탭하면 글자 크기·바탕·또렷함이 내 눈에 맞춰지고, 읽으려고 멈췄을 때 원래 화면을 내 설정으로 다시 보여 줍니다. 시력을 재거나 치료하는 의료기기가 아닙니다.
+
+## 핵심 정보
+
+- 대상: 작은 글씨에서 멈추는 45세 이상 스마트폰 사용자. 갤럭시 등 안드로이드부터 시작하고, 아이폰은 이후 검토.
+- 방식: 안경원의 "1번이 편하세요, 2번이 편하세요?"처럼 두 화면을 비교해 고르면 내 화면이 완성됩니다. 상황별(독서·외출·취침 전) 화면을 저장해 홈 화면 위젯 한 번으로 바꿉니다. 가족이 원격으로 다시 맞춰 줄 수 있습니다(본인 동의 시).
+- 기술: 안드로이드 접근성 기능과 기기 안 글자 인식으로 화면의 글을 읽고, 원문을 새로 만들지 않고 다시 배치합니다. 화면 원문과 입력 내용은 기기 밖으로 보내지 않습니다. 보안 키패드·보안 화면에서는 표시를 끄고 휴대폰 기본 확대 기능을 안내합니다.
+- 일정(예상): 한국 2027년 6월 정식 출시, 일본 2028년 하반기, 유럽 2029년 이후.
+- 가격(한국): 연간 9,900원(7일 무료 체험 후 구매, 매달 결제하는 구독 아님). 사전 예약(첫 눈도장) 시 출시 후 첫 1년 무료, 체험단(평생 눈도장) 참여 시 평생 무료. 모두 본인과 가족 2명까지.
+- 복지관·기관: 복지관 스마트폰 교실에서 강사·사회복지사와 함께 설치(3개월 무료 체험)하고, 복지관 전용 관리자 화면(진행 현황, 도움이 필요한 분, 실적 보고용 리포트)을 제공합니다. 성남·대구·충남권 복지관과 협약을 추진하고 있습니다.
+- 특허: 비교 화면에서 고른 결과로 화면 표시 설정을 만들고 사용 상황에 맞춰 적용하는 방법을 특허 출원했습니다(한국, 출원번호 10-2026-0240614, 2026-11-26).
+- 팀: 사회복지사 출신 대표(현장), 개발(AX 프로덕트 빌더·일본 IT 개발·사업PM 15년), 그로스(앱 그로스 마케팅 15년 이상), 사업 확대(IT 소프트웨어 유통·제휴 20년, 일본 현지 사업). 예비창업팀입니다.
+- 연락: tapview@tapview.app
+
+## 페이지
+
+- [탭뷰 소개](https://tapview.app/): 브랜드 스토리, 서비스 데모, 기술, 시장, 복지관, 로드맵, 팀, 자주 묻는 질문
+- [사전 예약](https://tapview.app/reserve): 첫 눈도장(출시 후 1년 무료)·체험단(평생 무료)·기관 신청
+- [문의하기](https://tapview.app/contact)
+- [개인정보처리방침](https://tapview.app/privacy)
+- [日本語ページ](https://tapview.app/ja): 日本でのリリースのお知らせ登録、提携・導入のご相談
+- [日本リリースのお知らせ登録](https://tapview.app/ja/notify)
+
+## 日本語の要約
+
+TapView（タップビュー）は、45歳以上の方のためのAndroid向け読みやすさサポートアプリです。2つの画面から楽な方をタップするだけで、文字の大きさ・背景・くっきり度が自分の目に合います。韓国で2027年6月にリリース予定、日本では2028年下半期のリリースを予定しています。医療機器ではありません。
+
+## English summary
+
+TapView is an Android reading-assist app for people aged 45 and over. Instead of picking numeric font sizes, users tap whichever of two screens looks clearer, and TapView re-renders the original on-screen text in the size, background and contrast that suits their eyes when they pause to read. On-screen text never leaves the device. Planned launch: Korea in June 2027, Japan in the second half of 2028, Europe from 2029 (estimates). Patent pending in Korea (10-2026-0240614). Not a medical device. Contact: tapview@tapview.app

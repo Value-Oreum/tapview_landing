@@ -11,10 +11,12 @@ import RoadmapSection from "@/components/sections/RoadmapSection";
 import TeamSection from "@/components/sections/TeamSection";
 import FaqSection from "@/components/sections/FaqSection";
 import NotifyCta from "@/components/sections/NotifyCta";
+import JsonLd from "@/components/seo/JsonLd";
 
 export default function JaHome() {
   return (
     <>
+      <JsonLd lang="ja" />
       <SiteHeader lang="ja" />
       <main>
         <Hero lang="ja" />

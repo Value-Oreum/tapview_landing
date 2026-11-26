@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 
-export const metadata: Metadata = { title: "개인정보처리방침" };
+export const metadata: Metadata = {
+  title: "개인정보처리방침",
+  description: "탭뷰 사전 예약·문의에서 받는 개인정보의 항목, 목적, 보유 기간, 국외 이전, 권리 안내.",
+  alternates: { canonical: "/privacy", languages: { ko: "/privacy", ja: "/ja/privacy" } },
+};
 
 const SECTIONS: { h: string; body: React.ReactNode }[] = [
   {
@@ -75,7 +79,7 @@ const SECTIONS: { h: string; body: React.ReactNode }[] = [
   },
   {
     h: "9. 방문 통계",
-    body: <p>사이트 개선을 위해 쿠키를 쓰지 않는 익명 방문 통계(Vercel Web Analytics)를 사용합니다.</p>,
+    body: <p>사이트 개선을 위해 쿠키를 쓰지 않는 익명 방문 통계와 화면 속도 측정(Vercel Web Analytics·Speed Insights)을 사용합니다.</p>,
   },
   {
     h: "10. 개인정보 보호책임자",

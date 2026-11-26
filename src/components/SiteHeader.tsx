@@ -107,7 +107,7 @@ export default function SiteHeader({ lang = "ko" }: { lang?: Lang }) {
         }`}
       >
         <a href={home ? "#top" : HOME[lang]} className="flex items-center" aria-label={t.home}>
-          <img src="/brand/logo-white.png" alt="TapView" width={640} height={222} className="h-[22px] w-auto" />
+          <img src="/brand/logo-white.webp" alt="TapView" width={400} height={139} className="h-[22px] w-auto" />
         </a>
 
         <nav aria-label={t.nav} className="hidden lg:block">

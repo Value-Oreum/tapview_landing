@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 
-export const metadata: Metadata = { title: "プライバシーポリシー", alternates: { canonical: "/ja/privacy" } };
+export const metadata: Metadata = {
+  title: "プライバシーポリシー",
+  description: "TapViewの日本リリースのお知らせ登録・ご相談で取得する個人情報の取扱いについて。",
+  alternates: { canonical: "/ja/privacy", languages: { ko: "/privacy", ja: "/ja/privacy" } },
+};
 
 const SECTIONS: { h: string; body: React.ReactNode }[] = [
   {
@@ -75,7 +79,11 @@ const SECTIONS: { h: string; body: React.ReactNode }[] = [
     ),
   },
   {
-    h: "9. 改定",
+    h: "9. アクセス解析",
+    body: <p>サイト改善のため、Cookieを使わない匿名のアクセス解析と表示速度の計測（Vercel Web Analytics・Speed Insights）を利用しています。</p>,
+  },
+  {
+    h: "10. 改定",
     body: <p>内容を変更する場合は、このページでお知らせします。</p>,
   },
 ];

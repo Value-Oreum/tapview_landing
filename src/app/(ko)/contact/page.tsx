@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
+import { OG_IMAGE } from "@/lib/site";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ContactForm from "@/components/reserve/ContactForm";
 
-export const metadata: Metadata = { title: "문의하기" };
+export const metadata: Metadata = {
+  title: "문의하기",
+  description: "탭뷰 제휴·취재·복지관 도입 문의. tapview@tapview.app으로도 받습니다.",
+  alternates: { canonical: "/contact" },
+  openGraph: { title: "문의하기 · 탭뷰 TapView", url: "https://tapview.app/contact", images: [OG_IMAGE.ko] },
+};
 
 export default function ContactPage() {
   return (

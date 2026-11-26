@@ -155,8 +155,10 @@ export function DogPeek({
         ref={ref}
         src={`/dog/dog-${pose}.webp`}
         alt=""
-        width={512}
-        height={512}
+        width={320}
+        height={320}
+        loading="lazy"
+        decoding="async"
         draggable={false}
         className="absolute top-0 left-0 w-full"
         style={{ transform: "translateY(8%)", transformOrigin: "50% 100%" }}

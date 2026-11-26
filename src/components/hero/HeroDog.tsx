@@ -7,7 +7,7 @@ export default function HeroDog() {
   return (
     <div className="hero-dog" data-hero-dog aria-hidden="true">
       <img src="/dog/dog-sleep.webp" alt="" width={512} height={512} draggable={false} data-dog-still />
-      <img alt="" width={480} height={480} draggable={false} data-dog-anim className="opacity-0" />
+      <img alt="" width={400} height={400} draggable={false} data-dog-anim className="opacity-0" />
       <img src="/dog/dog-wave.webp" alt="" width={512} height={512} draggable={false} data-dog-final className="dog-final" />
     </div>
   );

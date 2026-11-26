@@ -11,10 +11,12 @@ import RoadmapSection from "@/components/sections/RoadmapSection";
 import TeamSection from "@/components/sections/TeamSection";
 import FaqSection from "@/components/sections/FaqSection";
 import PromoCta from "@/components/sections/PromoCta";
+import JsonLd from "@/components/seo/JsonLd";
 
 export default function Home() {
   return (
     <>
+      <JsonLd lang="ko" />
       <SiteHeader />
       <main>
         <Hero />

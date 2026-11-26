@@ -81,6 +81,9 @@ const T = {
   },
 } as const;
 
+/** 구조화 데이터(FAQPage)에도 같은 질문을 쓴다 */
+export const FAQ_COPY = T;
+
 export default function FaqSection({ lang = "ko" }: { lang?: Lang }) {
   const t = T[lang];
   return (

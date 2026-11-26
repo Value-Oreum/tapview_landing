@@ -72,6 +72,28 @@ export default function Hero({ lang = "ko" }: { lang?: Lang }) {
     const anims = hero.querySelectorAll<HTMLImageElement>("[data-dog-anim]");
     const ease = gsap.parseEase("power2.inOut");
 
+    /**
+     * 휴대폰: 상단 메뉴와 아래 문구·버튼 사이 빈 곳에 로고 묶음(Tap·렌즈·View)이 들어가도록
+     * 크기(--fit)를 줄이고 그 가운데(--lock-top)에 놓는다. 사파리처럼 화면이 낮아도 겹치지 않게.
+     */
+    let lastSize = "";
+    const fit = () => {
+      hero.style.removeProperty("--fit");
+      if (!window.matchMedia("(max-width: 720px)").matches) {
+        hero.style.removeProperty("--lock-top");
+        return;
+      }
+      const dogEl = hero.querySelector<HTMLElement>(".hero-dog");
+      const fs = tap.offsetHeight;
+      const L = dogEl ? dogEl.offsetWidth / 1.18 : lens.offsetWidth;
+      const need = L + fs * 2.24;
+      const top = (header?.offsetHeight ?? 68) + 10;
+      const avail = bottom.offsetTop - 18 - top;
+      const k = Math.max(0.5, Math.min(1, avail / need));
+      hero.style.setProperty("--fit", k.toFixed(3));
+      hero.style.setProperty("--lock-top", `${(top + avail / 2).toFixed(1)}px`);
+    };
+
     /** 강아지와 확대 기준점을 렌즈 가운데에 맞춘다 */
     const placeDog = () => {
       const h = hero.getBoundingClientRect();
@@ -116,6 +138,7 @@ export default function Hero({ lang = "ko" }: { lang?: Lang }) {
       stills.forEach((s) => (s.style.opacity = "0"));
     };
 
+    fit();
     placeDog();
 
     const ctx = gsap.context(() => {
@@ -216,6 +239,12 @@ export default function Hero({ lang = "ko" }: { lang?: Lang }) {
     window.addEventListener("tv:motion", onMotion);
 
     const onResize = () => {
+      // 화면 크기가 바뀔 때만 다시 맞춘다 (렌즈가 열리는 동안의 크기 변화는 무시)
+      const size = `${hero.clientWidth}x${hero.clientHeight}`;
+      if (size !== lastSize) {
+        lastSize = size;
+        fit();
+      }
       placeDog();
       syncClip();
     };
@@ -249,12 +278,12 @@ export default function Hero({ lang = "ko" }: { lang?: Lang }) {
       <div className="hero-scrim" aria-hidden="true" />
 
       <div ref={lockupRef} className="lockup">
-        <img ref={tapRef} src="/brand/logo-tap.png" alt="TapView" width={717} height={537} draggable={false} />
+        <img ref={tapRef} src="/brand/logo-tap.webp" alt="TapView" width={427} height={320} draggable={false} />
         <div ref={lensRef} className="lens" style={{ ["--ring" as string]: 1 }}>
           <span ref={lineRef} className="lens-line" aria-hidden="true" />
           <span className="lens-glare" aria-hidden="true" />
         </div>
-        <img ref={viewRef} src="/brand/logo-view.png" alt="" width={887} height={537} draggable={false} />
+        <img ref={viewRef} src="/brand/logo-view.webp" alt="" width={529} height={320} draggable={false} />
       </div>
 
       <div

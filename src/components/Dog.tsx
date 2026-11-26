@@ -95,8 +95,10 @@ export default function Dog({
         ref={ref}
         src={`/dog/dog-${pose}.webp`}
         alt={decorative ? "" : ALT[pose]}
-        width={512}
-        height={512}
+        width={320}
+        height={320}
+        loading="lazy"
+        decoding="async"
         draggable={false}
         className="h-full w-full"
       />

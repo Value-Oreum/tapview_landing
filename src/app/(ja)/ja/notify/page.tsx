@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
+import { OG_IMAGE } from "@/lib/site";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import NotifyForm from "@/components/reserve/NotifyForm";
 
-export const metadata: Metadata = { title: "日本リリースのお知らせ登録", alternates: { canonical: "/ja/notify" } };
+export const metadata: Metadata = {
+  title: "日本リリースのお知らせ登録",
+  description: "TapViewの日本リリース（2028年下半期予定）をいち早くお知らせします。提携・導入のご相談も受け付けています。",
+  alternates: { canonical: "/ja/notify" },
+  openGraph: { title: "日本リリースのお知らせ登録 · TapView", url: "https://tapview.app/ja/notify", images: [OG_IMAGE.ja] },
+};
 
 export default function NotifyPage() {
   return (

@@ -46,7 +46,7 @@ export default function SiteFooter({ lang = "ko" }: { lang?: Lang }) {
       <DogClip clip="sleep" className="absolute -top-[74px] right-6 h-24 w-24 sm:right-16 sm:h-28 sm:w-28 sm:-top-[86px]" />
       <div className="mx-auto flex max-w-[1240px] flex-col gap-10 md:flex-row md:items-end md:justify-between">
         <div>
-          <img src="/brand/logo-white.png" alt="TapView" width={640} height={222} className="h-7 w-auto" />
+          <img src="/brand/logo-white.webp" alt="TapView" width={400} height={139} className="h-7 w-auto" />
           <p className="mt-4 text-[1.0625rem] text-paper/70">{t.tagline}</p>
           <p className="mt-6 text-[0.9375rem] leading-[1.8] text-paper/50">
             {t.team}

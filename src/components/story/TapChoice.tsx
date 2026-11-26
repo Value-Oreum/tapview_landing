@@ -147,8 +147,8 @@ export default function TapChoice({ lang = "ko" }: { lang?: Lang }) {
               data-tap-dog
               src="/dog/dog-thumb.webp"
               alt={t.dog}
-              width={512}
-              height={512}
+              width={320}
+              height={320}
               className="h-28 w-28 sm:h-32 sm:w-32"
             />
             <div className="text-center sm:text-left">

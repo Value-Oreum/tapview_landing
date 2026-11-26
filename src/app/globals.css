@@ -94,8 +94,9 @@ body {
 }
 @media (max-width: 720px) {
   .hero {
-    --lens: min(calc(var(--cw) * 0.205), calc(100vw - 110px));
-    --fs: min(24vw, 12svh);
+    /* --fit: 휴대폰에서 로고 묶음이 아래 문구·버튼과 겹치지 않게 JS가 줄이는 비율 (Hero.tsx fit) */
+    --lens: calc(min(calc(var(--cw) * 0.205), calc(100vw - 110px)) * var(--fit, 1));
+    --fs: calc(min(24vw, 12svh) * var(--fit, 1));
   }
 }
 
@@ -274,7 +275,8 @@ html[data-motion="reduce"] .hero-dog .dog-final {
 @media (max-width: 720px) {
   .lockup {
     --gap: calc(var(--fs) * 0.12);
-    top: 41%;
+    /* JS가 상단 메뉴와 아래 문구 사이 빈 곳의 가운데로 맞춘다 */
+    top: var(--lock-top, 41%);
     display: flex;
     flex-direction: column;
     align-items: center;

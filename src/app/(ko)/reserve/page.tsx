@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { OG_IMAGE } from "@/lib/site";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ReserveForm from "@/components/reserve/ReserveForm";
@@ -7,6 +8,13 @@ import Dog from "@/components/Dog";
 export const metadata: Metadata = {
   title: "사전 예약 · 첫눈에 탭!",
   description: "탭뷰 사전 예약(첫 눈도장)하면 출시 후 첫 1년 무료. 체험단(평생 눈도장)으로 함께 만들면 평생 무료. 본인과 가족 2명까지.",
+  alternates: { canonical: "/reserve" },
+  openGraph: {
+    title: "사전 예약 · 첫눈에 탭! — 탭뷰 TapView",
+    description: "사전 예약하면 출시 후 첫 1년 무료, 체험단은 평생 무료. 본인과 가족 2명까지.",
+    url: "https://tapview.app/reserve",
+    images: [OG_IMAGE.ko],
+  },
 };
 
 const PERKS = [
