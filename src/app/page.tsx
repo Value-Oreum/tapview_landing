@@ -1,7 +1,16 @@
 import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 import Hero from "@/components/hero/Hero";
 import BrandStory from "@/components/story/BrandStory";
 import FilmSection from "@/components/FilmSection";
+import ServiceSection from "@/components/sections/ServiceSection";
+import TechSection from "@/components/sections/TechSection";
+import MarketSection from "@/components/sections/MarketSection";
+import InstitutionSection from "@/components/sections/InstitutionSection";
+import RoadmapSection from "@/components/sections/RoadmapSection";
+import TeamSection from "@/components/sections/TeamSection";
+import FaqSection from "@/components/sections/FaqSection";
+import PromoCta from "@/components/sections/PromoCta";
 
 export default function Home() {
   return (
@@ -10,10 +19,17 @@ export default function Home() {
       <main>
         <Hero />
         <BrandStory />
+        <ServiceSection />
         <FilmSection />
-        {/* P3: 서비스 데모 · 기술 · 시장 · 기관 · 로드맵 · 팀 · FAQ · 마지막 CTA */}
-        <section className="h-[40vh]" aria-hidden="true" />
+        <TechSection />
+        <MarketSection />
+        <InstitutionSection />
+        <RoadmapSection />
+        <TeamSection />
+        <FaqSection />
+        <PromoCta />
       </main>
+      <SiteFooter />
     </>
   );
 }
