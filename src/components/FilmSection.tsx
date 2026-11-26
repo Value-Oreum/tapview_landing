@@ -19,8 +19,8 @@ const T = {
   ja: {
     eyebrow: "紹介動画",
     title: "小さな画面が、味方になる。",
-    meta: "1分12秒・韓国語の映像です（音声あり）",
-    aria: "動画を見る — TapView紹介動画（1分12秒、韓国語、音声あり）",
+    meta: "1分12秒・音声と一緒にご覧ください",
+    aria: "動画を見る — TapView紹介動画（1分12秒、音声あり）",
     play: "動画を見る",
     note: "映像に登場する人物や画面は、AIで作成したイメージです。",
   },
@@ -29,10 +29,16 @@ const T = {
 gsap.registerPlugin(ScrollTrigger);
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 const PORTRAIT = "(max-width: 767px) and (orientation: portrait)";
+/** 언어별 영상 (일본어판: 내레이션·화면 글자 일본어, 끝은 출시 알림) */
+const FILES = {
+  ko: { v916: "/film/tapview-film-v2-916-720.mp4", v1080: "/film/tapview-film-v2-1080.mp4", v720: "/film/tapview-film-v2-720.mp4", p: "/film/poster-v2.webp", p916: "/film/poster-v2-916.webp" },
+  ja: { v916: "/film/tapview-film-v2-ja-916-720.mp4", v1080: "/film/tapview-film-v2-ja-1080.mp4", v720: "/film/tapview-film-v2-ja-720.mp4", p: "/film/poster-v2-ja.webp", p916: "/film/poster-v2-ja-916.webp" },
+} as const;
 
 /** 홍보영상 (72초). 화면에 들어오면 알약 창이 넓어지며 영상 카드가 열린다. 재생은 사용자가 누를 때 소리와 함께. */
 export default function FilmSection({ lang = "ko" }: { lang?: Lang }) {
   const t = T[lang];
+  const f = FILES[lang];
   const wrapRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const clipRef = useRef<gsap.core.Tween | null>(null);
@@ -113,15 +119,15 @@ export default function FilmSection({ lang = "ko" }: { lang?: Lang }) {
             onPause={() => setPlaying(false)}
             onPlay={() => setPlaying(true)}
           >
-            <source src="/film/tapview-film-v2-916-720.mp4" type="video/mp4" media={PORTRAIT} />
-            <source src="/film/tapview-film-v2-1080.mp4" type="video/mp4" media="(min-width: 1024px)" />
-            <source src="/film/tapview-film-v2-720.mp4" type="video/mp4" />
+            <source src={f.v916} type="video/mp4" media={PORTRAIT} />
+            <source src={f.v1080} type="video/mp4" media="(min-width: 1024px)" />
+            <source src={f.v720} type="video/mp4" />
           </video>
           {!started && (
             <picture>
-              <source srcSet="/film/poster-v2-916.webp" media={PORTRAIT} />
+              <source srcSet={f.p916} media={PORTRAIT} />
               <img
-                src="/film/poster-v2.webp"
+                src={f.p}
                 alt=""
                 width={1600}
                 height={900}
