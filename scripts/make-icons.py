@@ -39,7 +39,7 @@ def make(size, radius_ratio=0.22, scale=0.64, full=False):
 app = f'{repo}/src/app'
 make(512).save(f'{app}/icon.png')                       # 브라우저 탭·검색 결과
 make(180, full=True, scale=0.6).convert('RGB').save(f'{app}/apple-icon.png')  # iOS 홈 화면 (모서리는 iOS가 깎음)
-make(256).save(f'{app}/favicon.ico', sizes=[(16, 16), (32, 32), (48, 48), (64, 64)])
+make(256).save(f'{app}/favicon.ico', sizes=[(16, 16), (32, 32), (48, 48)], bitmap_format='bmp')  # BMP 항목: Next 이미지 처리기가 읽을 수 있게
 make(192).save(f'{repo}/public/icon-192.png')
 make(512).save(f'{repo}/public/icon-512.png')
 make(512, full=True, scale=0.5).save(f'{repo}/public/icon-maskable-512.png')  # 안드로이드: 가운데 안전영역

@@ -7,68 +7,17 @@ import Dog from "@/components/Dog";
 import { prefersReducedMotion } from "@/components/providers/PrefsProvider";
 import CoffeeIcon from "@/components/CoffeeIcon";
 import { COFFEE_GOAL, COFFEE_PRIZE, COFFEE_TERMS } from "@/lib/event";
+import ShareSheet from "./ShareSheet";
 
 type Result = { code: string; kind: "personal" | "family" | "org"; beta: boolean; date: string; dup?: boolean };
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
-
-/** 카드 이미지를 캔버스로 그려 PNG로 만든다 (1080×1350, 인스타그램 세로 비율) */
-async function drawCard(code: string, date: string): Promise<Blob | null> {
-  const W = 1080;
-  const H = 1350;
-  const c = document.createElement("canvas");
-  c.width = W;
-  c.height = H;
-  const g = c.getContext("2d");
-  if (!g) return null;
-  const family = getComputedStyle(document.body).fontFamily;
-  await document.fonts.ready;
-  const grad = g.createLinearGradient(0, 0, 0, H);
-  grad.addColorStop(0, "#0d3f22");
-  grad.addColorStop(1, "#060807");
-  g.fillStyle = grad;
-  g.fillRect(0, 0, W, H);
-  // 도장
-  g.save();
-  g.translate(W / 2, 470);
-  g.rotate((-12 * Math.PI) / 180);
-  g.strokeStyle = "#ffd45a";
-  g.lineWidth = 14;
-  g.beginPath();
-  g.arc(0, 0, 230, 0, Math.PI * 2);
-  g.stroke();
-  g.lineWidth = 4;
-  g.beginPath();
-  g.arc(0, 0, 196, 0, Math.PI * 2);
-  g.stroke();
-  g.fillStyle = "#ffd45a";
-  g.textAlign = "center";
-  g.textBaseline = "middle";
-  g.font = `800 82px ${family}`;
-  g.fillText("첫 눈도장", 0, 0);
-  g.font = `600 40px ${family}`;
-  g.fillText("TapView", 0, -128);
-  g.fillText(date.replaceAll("-", "."), 0, 128);
-  g.restore();
-  // 글
-  g.textAlign = "center";
-  g.fillStyle = "#f2f4ef";
-  g.font = `800 96px ${family}`;
-  g.fillText(code, W / 2, 860);
-  g.font = `600 48px ${family}`;
-  g.fillText("출시 후 첫 1년 무료 · 본인+가족 2명", W / 2, 970);
-  g.fillStyle = "#8bf2c2";
-  g.font = `600 44px ${family}`;
-  g.fillText("#첫눈에탭  #탭뷰어", W / 2, 1060);
-  g.fillStyle = "rgba(242,244,239,.6)";
-  g.font = `400 40px ${family}`;
-  g.fillText("선명하게 보이면, 탭.  tapview.app", W / 2, 1230);
-  return new Promise((res) => c.toBlob((b) => res(b), "image/png"));
-}
 
 export default function DoneView() {
   const [r, setR] = useState<Result | null>(null);
   const [copied, setCopied] = useState("");
   const [invites, setInvites] = useState<number | null>(null);
+  const [sheet, setSheet] = useState(false);
+  const [sheetKey, setSheetKey] = useState(0); // 열 때마다 새로 (보냈어요 상태 초기화)
   const stampRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -113,44 +62,14 @@ export default function DoneView() {
   const isOrg = r.kind === "org";
   const origin = typeof location !== "undefined" ? location.origin : "https://tapview.app";
   const invite = r.code ? `${origin}/?ref=${r.code}` : origin;
-  const parentText = `휴대폰 글씨 잘 안 보이시죠? '탭뷰'를 사전 예약해 두었어요. 출시되면 1년 무료래요. 같이 써 봐요! #첫눈에탭`;
-  const friendText = `나 탭뷰 첫 눈도장 찍었어! 사전 예약하면 출시 후 1년 무료래. 너도 찍어 봐 #첫눈에탭 #탭뷰어`;
-
-  const share = async (text: string, label: string) => {
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: "탭뷰 TapView", text, url: invite });
-        return;
-      }
-    } catch {
-      return;
-    }
-    await navigator.clipboard?.writeText(`${text}\n${invite}`);
-    setCopied(label);
-    setTimeout(() => setCopied(""), 2200);
-  };
   const copyLink = async () => {
-    await navigator.clipboard?.writeText(invite);
-    setCopied("link");
-    setTimeout(() => setCopied(""), 2200);
-  };
-  const saveImage = async () => {
-    const blob = await drawCard(r.code || "TV-0000", r.date);
-    if (!blob) return;
-    const file = new File([blob], `첫 눈도장_${r.code}.png`, { type: "image/png" });
-    if (navigator.canShare?.({ files: [file] })) {
-      try {
-        await navigator.share({ files: [file], text: friendText });
-        return;
-      } catch {
-        return;
-      }
+    try {
+      await navigator.clipboard.writeText(`${invite}&utm_source=copy&utm_medium=invite`);
+      setCopied("link");
+    } catch {
+      setCopied("fail");
     }
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = file.name;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    setTimeout(() => setCopied(""), 2400);
   };
 
   if (isOrg) {
@@ -245,26 +164,27 @@ export default function DoneView() {
           </ul>
         </details>
 
-        <div className="mt-8 grid gap-3 sm:grid-cols-2">
-          <button type="button" onClick={() => share(parentText, "parent")} className="share-btn share-btn--primary">
-            부모님께 보내기
+        <div className="mt-8 grid gap-3 sm:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+          <button type="button" onClick={() => {
+              setSheetKey((k) => k + 1);
+              setSheet(true);
+            }} className="share-btn share-btn--primary h-16 text-[1.1875rem]">
+            공유하기
           </button>
-          <button type="button" onClick={() => share(friendText, "friend")} className="share-btn">
-            친구에게 공유
-          </button>
-          <button type="button" onClick={saveImage} className="share-btn">
-            카드 이미지 저장
-          </button>
-          <button type="button" onClick={copyLink} className="share-btn">
+          <button type="button" onClick={copyLink} className="share-btn h-16">
             내 링크 복사
           </button>
         </div>
-        <p aria-live="polite" className="mt-4 min-h-6 text-[0.9375rem] text-mint">
-          {copied === "link" && "링크를 복사했어요. 카카오톡에 붙여 넣어 보내 보세요."}
-          {(copied === "parent" || copied === "friend") && "메시지와 링크를 복사했어요. 카카오톡에 붙여 넣어 보내 보세요."}
+        <p className="mt-3 text-[0.9375rem] leading-[1.6] text-paper/55">
+          카카오톡·인스타그램·문자로 캐릭터 카드와 내 링크를 한 번에 보내요.
+        </p>
+        <p aria-live="polite" className="mt-2 min-h-6 text-[0.9375rem] text-mint">
+          {copied === "link" && "링크를 복사했어요. 카카오톡이나 문자에 붙여 넣어 보내 보세요."}
+          {copied === "fail" && "복사하지 못했어요. 아래 링크를 길게 눌러 복사해 주세요."}
         </p>
         <p className="mt-2 text-[0.875rem] break-all text-paper/45">{invite}</p>
       </div>
+      <ShareSheet key={sheetKey} open={sheet} onClose={() => setSheet(false)} code={r.code || "TV-0000"} date={r.date} invites={invites} />
     </div>
   );
 }
