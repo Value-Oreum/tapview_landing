@@ -6,7 +6,7 @@ import Dog from "@/components/Dog";
 
 export const metadata: Metadata = {
   title: "사전 예약 · 첫눈에 탭!",
-  description: "탭뷰 사전 예약(첫눈도장)하면 출시 후 첫 1년 무료. 체험단(평생 눈도장)으로 함께 만들면 평생 무료. 본인과 가족 2명까지.",
+  description: "탭뷰 사전 예약(첫 눈도장)하면 출시 후 첫 1년 무료. 체험단(평생 눈도장)으로 함께 만들면 평생 무료. 본인과 가족 2명까지.",
 };
 
 const PERKS = [
@@ -14,7 +14,7 @@ const PERKS = [
     dog: "gift" as const,
     motion: "hop" as const,
     tag: "사전 예약",
-    name: "첫눈도장",
+    name: "첫 눈도장",
     big: "출시 후 첫 1년 무료",
     small: "본인과 가족 2명까지",
   },
@@ -50,7 +50,7 @@ export default function ReservePage() {
           <div>
             <p className="inline-flex rounded-full bg-tap px-4 py-1.5 text-[1rem] font-extrabold text-ink">첫눈에 탭!</p>
             <h1 className="mt-6 text-[clamp(2.25rem,5.4vw,4.5rem)] leading-[1.08] font-semibold tracking-[-0.045em] text-paper">
-              첫눈도장 찍고,
+              첫 눈도장 찍고,
               <br />
               <span className="text-mint">먼저 만나세요.</span>
             </h1>

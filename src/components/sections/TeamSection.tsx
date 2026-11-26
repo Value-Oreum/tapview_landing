@@ -1,4 +1,5 @@
 import SectionHead from "./SectionHead";
+import { DogWalker } from "@/components/DogMotion";
 import ScrollFocusText from "@/components/motion/ScrollFocusText";
 
 const TEAM = [
@@ -33,7 +34,9 @@ export default function TeamSection() {
     <section id="team" aria-labelledby="team-title" className="px-5 py-[16vh] sm:px-10">
       <div className="mx-auto max-w-[1240px]">
         <SectionHead id="team-title" eyebrow="팀" title={"보는 불편을,\n가장 가까이에서 본 사람들."} />
-        <ul className="mt-16 grid gap-4 md:grid-cols-2">
+        <div className="relative mt-20">
+          <DogWalker size={84} />
+          <ul className="grid gap-4 md:grid-cols-2">
           {TEAM.map((m) => (
             <li key={m.role} className="flex min-h-[19rem] flex-col justify-between rounded-[32px] border border-paper/10 bg-paper/[0.03] p-8 sm:p-10">
               <div>
@@ -53,6 +56,7 @@ export default function TeamSection() {
             </li>
           ))}
         </ul>
+        </div>
       </div>
     </section>
   );

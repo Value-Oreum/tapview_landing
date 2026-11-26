@@ -11,20 +11,22 @@ gsap.registerPlugin(ScrollTrigger);
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 const HEADLINE = ["선명하게", "보이면,", "탭."];
+const ANIM = { wake: "/dog/anim/wake.webp", wave: "/dog/anim/wave-loop.webp" };
+const WAKE_SEC = 76 / 15; // 깨어나 손 흔들기 영상 길이 (76프레임, 15fps)
 
 /**
- * 히어로 = 스플래시 로고플레이. MotionSites 'Wild Pill' 구조를 탭뷰에 맞게 바꿈.
- * 흐린 폰 속에서 강아지가 자고 있고, Tap|View 사이 가는 선이 알약 창으로 열리면
- * 창 안의 강아지가 점점 선명해지다가 벌떡 깨어 손을 흔든다.
- * 스크롤하면 알약 창이 화면 전체로 커지며 모든 것이 선명해진다.
+ * 히어로 = 스플래시 로고플레이 (MotionSites 'Wild Pill' 구조를 원형 렌즈로 바꿈).
+ * Tap|View 사이 가는 선이 부드럽게 둥근 렌즈로 열리고, 렌즈 안에서 초점이 맞으며 흐린 화면이 선명해진다.
+ * 렌즈 가운데의 강아지는 자다가 깨어 벌떡 일어나 손을 흔든다. 스크롤하면 렌즈가 화면 전체로 커진다.
  */
 export default function Hero() {
   const heroRef = useRef<HTMLElement>(null);
   const sharpRef = useRef<HTMLDivElement>(null);
+  const zoomRef = useRef<HTMLDivElement>(null);
   const lockupRef = useRef<HTMLDivElement>(null);
   const tapRef = useRef<HTMLImageElement>(null);
   const viewRef = useRef<HTMLImageElement>(null);
-  const pillRef = useRef<HTMLDivElement>(null);
+  const lensRef = useRef<HTMLDivElement>(null);
   const lineRef = useRef<HTMLSpanElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const progress = useRef(0); // 스크롤 확장 진행도 0~1
@@ -32,8 +34,9 @@ export default function Hero() {
   useIsoLayoutEffect(() => {
     const hero = heroRef.current!;
     const sharp = sharpRef.current!;
+    const zoom = zoomRef.current!;
     const lockup = lockupRef.current!;
-    const pill = pillRef.current!;
+    const lens = lensRef.current!;
     const tap = tapRef.current!;
     const view = viewRef.current!;
     const line = lineRef.current!;
@@ -41,28 +44,24 @@ export default function Hero() {
     const header = document.querySelector<HTMLElement>("[data-site-header]");
     const words = gsap.utils.toArray<HTMLElement>("[data-blur-word]", hero);
     const rises = gsap.utils.toArray<HTMLElement>("[data-rise]", hero);
+    const stills = hero.querySelectorAll<HTMLImageElement>("[data-dog-still]");
+    const anims = hero.querySelectorAll<HTMLImageElement>("[data-dog-anim]");
     const ease = gsap.parseEase("power2.inOut");
 
-    // 강아지 포즈 (흐린 판·선명한 판에 하나씩 → 두 벌을 같이 움직인다)
-    const pose = (k: string) => hero.querySelectorAll<HTMLElement>(`[data-pose="${k}"]`);
-    const body = (k: string) => hero.querySelectorAll<HTMLElement>(`[data-pose="${k}"] [data-body]`);
-    const fx = (k: string) => hero.querySelectorAll<HTMLElement>(`[data-pose="${k}"] [data-fx]`);
-    const shadows = hero.querySelectorAll<HTMLElement>("[data-dog-shadow]");
-    const sharpDog = sharp.querySelector<HTMLElement>("[data-dog]");
-
-    /** 강아지를 알약 창 높이(로고 묶음의 세로 중심)에 맞춘다 */
+    /** 강아지와 확대 기준점을 렌즈 가운데에 맞춘다 */
     const placeDog = () => {
-      const scr = sharp.querySelector(".phone-screen")!.getBoundingClientRect();
+      const h = hero.getBoundingClientRect();
       const lk = lockup.getBoundingClientRect();
-      if (!scr.height) return;
-      const y = ((lk.top + lk.height / 2 - scr.top) / scr.height) * 100;
-      hero.style.setProperty("--dog-y", `${y.toFixed(2)}%`);
+      const x = h.width / 2;
+      const y = lk.top + lk.height / 2 - h.top;
+      hero.style.setProperty("--dog-x", `${x.toFixed(1)}px`);
+      hero.style.setProperty("--dog-y", `${y.toFixed(1)}px`);
     };
 
-    /** 선명한 판을 알약 창 모양으로 자르고, 스크롤 진행도만큼 화면 전체로 넓힌다 */
+    /** 선명한 판을 렌즈 모양으로 자르고, 스크롤 진행도만큼 화면 전체로 넓힌다 */
     const syncClip = () => {
       const h = hero.getBoundingClientRect();
-      const r = pill.getBoundingClientRect();
+      const r = lens.getBoundingClientRect();
       const k = 1 - ease(progress.current);
       const top = (r.top - h.top) * k;
       const left = (r.left - h.left) * k;
@@ -79,9 +78,18 @@ export default function Hero() {
       gsap.set(tap, mobile ? { y: -p * dist, x: 0 } : { x: -p * dist, y: 0 });
       gsap.set(view, mobile ? { y: p * dist, x: 0 } : { x: p * dist, y: 0 });
       gsap.set([tap, view], { opacity: 1 - Math.min(1, p * 1.6) });
-      gsap.set(pill, { "--ring": 1 - Math.min(1, p * 2.5) });
+      gsap.set(lens, { "--ring": 1 - Math.min(1, p * 2.5) });
+      gsap.set(zoom, { "--zoom": 1 + 0.06 * (1 - p) });
       gsap.set(bottom, { opacity: 1 - Math.min(1, progress.current * 2.4), y: -progress.current * 40 });
       syncClip();
+    };
+
+    const playDog = (src: string) => {
+      anims.forEach((img) => {
+        img.src = src;
+        img.style.opacity = "1";
+      });
+      stills.forEach((s) => (s.style.opacity = "0"));
     };
 
     placeDog();
@@ -89,7 +97,6 @@ export default function Hero() {
     const ctx = gsap.context(() => {
       const reduce = prefersReducedMotion();
 
-      // 스크롤: 알약 창이 화면 전체로 (움직임 줄이기면 고정하지 않음)
       if (!reduce) {
         ScrollTrigger.create({
           trigger: hero,
@@ -105,135 +112,68 @@ export default function Hero() {
       }
 
       if (reduce) {
+        gsap.set(zoom, { "--zoom": 1 });
         syncClip();
         return;
       }
 
-      // ── 스플래시 (약 4.5초) ──
-      const mobile = window.matchMedia("(max-width: 720px)").matches;
+      // 영상 미리 받아 두기 (바꿔 끼울 때 끊기지 않게)
+      [ANIM.wake, ANIM.wave].forEach((src) => {
+        const im = new Image();
+        im.src = src;
+      });
+
       // 이전 실행(개발 모드 이중 실행 등)이 남긴 인라인 크기를 지우고 CSS 최종 크기를 잰다
-      pill.style.width = "";
-      pill.style.height = "";
+      lens.style.width = "";
+      lens.style.height = "";
       const fs = tap.offsetHeight;
-      const W = pill.offsetWidth;
-      const H = pill.offsetHeight;
-      const st = { w: mobile ? 0 : 0.012 * fs, h: mobile ? 1.5 : 0 };
+      const D = lens.offsetWidth;
+      const st = { w: 1.5, h: 0 };
       const apply = () => {
-        pill.style.width = `${st.w}px`;
-        pill.style.height = `${st.h}px`;
+        lens.style.width = `${st.w}px`;
+        lens.style.height = `${st.h}px`;
         syncClip();
       };
       apply();
-      gsap.set(lockup, { "--gap": `${fs * 0.03}px` });
-      gsap.set(line, { opacity: 1 });
+      gsap.set(lockup, { "--gap": `${fs * 0.04}px` });
+      gsap.set(line, { opacity: 0 });
+      gsap.set(lens, { "--glare": 0 });
+      gsap.set(zoom, { filter: "blur(14px)", "--zoom": 1 });
       gsap.set(words, { filter: "blur(16px)", opacity: 0.12, y: "0.12em" });
       gsap.set(rises, { opacity: 0, y: 28 });
       if (header) gsap.set(header, { yPercent: -140, opacity: 0 });
 
-      // 강아지: 자는 모습에서 시작
-      gsap.set(pose("wave"), { opacity: 0 });
-      gsap.set(pose("sleep"), { opacity: 1 });
-      if (sharpDog) gsap.set(sharpDog, { filter: "blur(10px)" });
-      const breathe = gsap.to(body("sleep"), {
-        scaleY: 1.045,
-        scaleX: 0.985,
-        transformOrigin: "50% 82%",
-        duration: 1.25,
-        yoyo: true,
-        repeat: -1,
-        ease: "sine.inOut",
-      });
-      const zzz = gsap.fromTo(
-        fx("sleep"),
-        { y: 8, x: 0, opacity: 0.35 },
-        { y: -14, x: -4, opacity: 1, duration: 1.5, yoyo: true, repeat: -1, ease: "sine.inOut" },
-      );
-
-      const idleWave = () => {
-        const t = gsap.timeline({ repeat: -1, repeatDelay: 2.6 });
-        t.to(pose("wave"), { rotate: 5, duration: 0.16, yoyo: true, repeat: 5, ease: "sine.inOut" })
-          .fromTo(fx("wave"), { opacity: 0.2, x: -3 }, { opacity: 1, x: 0, duration: 0.12, yoyo: true, repeat: 5 }, 0)
-          .to(pose("wave"), { yPercent: -3, duration: 0.2, yoyo: true, repeat: 1, ease: "power1.out" }, 0);
-        return t;
-      };
-
       const tl = gsap.timeline({
-        delay: 0.25,
+        delay: 0.3,
         onComplete: () => {
-          pill.style.width = "";
-          pill.style.height = "";
+          lens.style.width = "";
+          lens.style.height = "";
           gsap.set(lockup, { clearProps: "--gap" });
           gsap.set(words, { clearProps: "filter,transform,opacity" });
+          gsap.set(zoom, { clearProps: "filter" });
           syncClip();
-          idleWave();
         },
       });
 
-      // ① 가는 선 → 틈 → 원 → 알약 (약 2초)
-      if (mobile) {
-        tl.to(st, { w: W, duration: 0.32, ease: "power2.inOut", onUpdate: apply })
-          .to(st, { h: H * 0.1, duration: 0.34, ease: "power2.inOut", onUpdate: apply })
-          .to(line, { opacity: 0, duration: 0.34 }, "<")
-          .to(st, { h: H * 0.55, duration: 0.56, ease: "power2.inOut", onUpdate: apply })
-          .to(st, { h: H, duration: 0.8, ease: "power3.inOut", onUpdate: apply });
-      } else {
-        tl.to(st, { h: H, duration: 0.32, ease: "power2.inOut", onUpdate: apply })
-          .to(st, { w: 0.16 * fs, duration: 0.34, ease: "power2.inOut", onUpdate: apply })
-          .to(line, { opacity: 0, duration: 0.34 }, "<")
-          .to(st, { w: H, duration: 0.56, ease: "power2.inOut", onUpdate: apply })
-          .to(st, { w: W, duration: 0.8, ease: "power3.inOut", onUpdate: apply });
-      }
-      tl.to(lockup, { "--gap": `${fs * 0.09}px`, duration: 1.4, ease: "power2.inOut" }, 0.3);
+      // ① 가는 선이 그어지고 → 부드럽게 둥근 렌즈로 (약 1.7초)
+      tl.to(line, { opacity: 1, duration: 0.2 }, 0)
+        .to(st, { h: D * 0.55, duration: 0.45, ease: "power2.out", onUpdate: apply }, 0)
+        .to(st, { w: D, h: D, duration: 1.3, ease: "power3.inOut", onUpdate: apply }, 0.4)
+        .to(line, { opacity: 0, duration: 0.55, ease: "power1.out" }, 0.45)
+        .to(lockup, { "--gap": `${fs * 0.12}px`, duration: 1.4, ease: "power3.inOut" }, 0.35)
+        // ② 렌즈 안에서 초점이 맞는다: 흐림 → 선명, 살짝 확대
+        .to(zoom, { filter: "blur(0px)", "--zoom": 1.06, duration: 1.6, ease: "power2.inOut" }, 0.7)
+        .to(lens, { "--glare": 1, duration: 0.9, ease: "power1.out" }, 1.2);
 
-      // ② 창 안의 강아지가 점점 선명해진다
-      if (sharpDog) tl.to(sharpDog, { filter: "blur(0px)", duration: 1.5, ease: "power2.out" }, 0.7);
+      // ③ 강아지: 자는 장면에서 시작하는 영상 → 초점이 맞을 즈음 깨어나 벌떡, 손 흔들기
+      tl.add(() => playDog(ANIM.wake), 0.35).add(() => playDog(ANIM.wave), 0.35 + WAKE_SEC);
 
-      // ③ 깜짝 — 눈을 뜬다
-      const WAKE = 2.35;
-      tl.add(() => {
-        breathe.pause();
-        zzz.pause();
-      }, WAKE)
-        .set(pose("sleep"), { opacity: 0 }, WAKE)
-        .set(pose("dazed"), { opacity: 1 }, WAKE)
-        .fromTo(pose("dazed"), { scaleY: 0.9, scaleX: 1.06 }, { scaleY: 1, scaleX: 1, duration: 0.35, ease: "back.out(3)" }, WAKE)
-        .fromTo(fx("dazed"), { opacity: 0 }, { opacity: 1, duration: 0.09, repeat: 3, yoyo: true }, WAKE + 0.1);
+      // ④ 화면 UI
+      if (header) tl.to(header, { yPercent: 0, opacity: 1, duration: 0.9, ease: "expo.out" }, 1.7);
+      tl.to(words, { filter: "blur(0px)", opacity: 1, y: 0, duration: 1.15, stagger: 0.16, ease: "power3.out" }, 2.2);
+      tl.to(rises, { opacity: 1, y: 0, duration: 0.9, stagger: 0.1, ease: "expo.out" }, 2.6);
 
-      // ④ 벌떡 — 뛰어오르며 별이 튄다
-      const JUMP = WAKE + 0.7;
-      tl.set(pose("dazed"), { opacity: 0 }, JUMP)
-        .set(pose("jump"), { opacity: 1 }, JUMP)
-        .fromTo(
-          pose("jump"),
-          { yPercent: 4, scaleY: 0.84, scaleX: 1.1 },
-          { yPercent: -16, scaleY: 1.07, scaleX: 0.95, duration: 0.28, ease: "power2.out" },
-          JUMP,
-        )
-        .fromTo(shadows, { scaleX: 1, opacity: 1 }, { scaleX: 0.6, opacity: 0.45, duration: 0.28, ease: "power2.out" }, JUMP)
-        .fromTo(
-          fx("jump"),
-          { scale: 0, rotate: -40, transformOrigin: "74% 36%" },
-          { scale: 1, rotate: 0, duration: 0.4, ease: "back.out(3)" },
-          JUMP + 0.05,
-        )
-        .to(pose("jump"), { yPercent: 0, scaleY: 1, scaleX: 1, duration: 0.22, ease: "power2.in" }, JUMP + 0.3)
-        .to(shadows, { scaleX: 1, opacity: 1, duration: 0.22, ease: "power2.in" }, JUMP + 0.3);
-
-      // ⑤ 착지 — 손을 흔든다
-      const WAVE = JUMP + 0.52;
-      tl.set(pose("jump"), { opacity: 0 }, WAVE)
-        .set(pose("wave"), { opacity: 1 }, WAVE)
-        .fromTo(pose("wave"), { scaleY: 0.86, scaleX: 1.1 }, { scaleY: 1, scaleX: 1, duration: 0.7, ease: "elastic.out(1, 0.4)" }, WAVE)
-        .to(pose("wave"), { rotate: 6, duration: 0.15, yoyo: true, repeat: 7, ease: "sine.inOut" }, WAVE + 0.15)
-        .fromTo(fx("wave"), { opacity: 0, x: -4 }, { opacity: 1, x: 0, duration: 0.12, yoyo: true, repeat: 7 }, WAVE + 0.15)
-        .set(fx("wave"), { opacity: 1, x: 0 });
-
-      // ⑥ 화면 UI
-      if (header) tl.to(header, { yPercent: 0, opacity: 1, duration: 0.9, ease: "expo.out" }, WAKE + 0.2);
-      tl.to(words, { filter: "blur(0px)", opacity: 1, y: 0, duration: 1.15, stagger: 0.16, ease: "power3.out" }, JUMP);
-      tl.to(rises, { opacity: 1, y: 0, duration: 0.9, stagger: 0.1, ease: "expo.out" }, JUMP + 0.3);
-
-      // 점검용: ?slow=1 이면 5배 느리게 재생
+      // 점검용: ?slow=1 이면 5배 느리게 재생 (강아지 영상 속도는 그대로)
       if (new URLSearchParams(location.search).has("slow")) tl.timeScale(0.2);
     }, hero);
 
@@ -241,10 +181,11 @@ export default function Hero() {
     const onMotion = () => {
       if (!prefersReducedMotion()) return;
       ctx.revert();
-      pill.style.width = "";
-      pill.style.height = "";
+      lens.style.width = "";
+      lens.style.height = "";
       progress.current = 0;
       gsap.set([tap, view, bottom], { clearProps: "all" });
+      gsap.set(zoom, { "--zoom": 1 });
       syncClip();
     };
     window.addEventListener("tv:motion", onMotion);
@@ -255,7 +196,7 @@ export default function Hero() {
     };
     const ro = new ResizeObserver(onResize);
     ro.observe(hero);
-    ro.observe(pill);
+    ro.observe(lens);
     window.addEventListener("resize", onResize);
 
     return () => {
@@ -263,8 +204,8 @@ export default function Hero() {
       window.removeEventListener("resize", onResize);
       ro.disconnect();
       ctx.revert();
-      pill.style.width = "";
-      pill.style.height = "";
+      lens.style.width = "";
+      lens.style.height = "";
     };
   }, []);
 
@@ -274,16 +215,19 @@ export default function Hero() {
       <div className="stage stage--blur" aria-hidden="true">
         <PhoneStage priority />
       </div>
-      {/* 선명한 판: 알약 창 모양으로만 보인다 */}
+      {/* 선명한 판: 렌즈 모양으로만 보이고, 안쪽은 살짝 확대 */}
       <div ref={sharpRef} className="stage stage--sharp" aria-hidden="true">
-        <PhoneStage />
+        <div ref={zoomRef} className="lens-zoom">
+          <PhoneStage />
+        </div>
       </div>
       <div className="hero-scrim" aria-hidden="true" />
 
       <div ref={lockupRef} className="lockup">
         <img ref={tapRef} src="/brand/logo-tap.png" alt="TapView" width={717} height={537} draggable={false} />
-        <div ref={pillRef} className="pill" style={{ ["--ring" as string]: 1 }}>
-          <span ref={lineRef} className="pill-line" aria-hidden="true" />
+        <div ref={lensRef} className="lens" style={{ ["--ring" as string]: 1 }}>
+          <span ref={lineRef} className="lens-line" aria-hidden="true" />
+          <span className="lens-glare" aria-hidden="true" />
         </div>
         <img ref={viewRef} src="/brand/logo-view.png" alt="" width={887} height={537} draggable={false} />
       </div>

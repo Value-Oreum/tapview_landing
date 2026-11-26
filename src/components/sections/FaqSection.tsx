@@ -1,4 +1,5 @@
 import SectionHead from "./SectionHead";
+import { DogPeek } from "@/components/DogMotion";
 
 const FAQ = [
   {
@@ -7,7 +8,7 @@ const FAQ = [
   },
   {
     q: "가격은 얼마인가요?",
-    a: "연간 9,900원입니다(7일 무료 체험 후 구매). 매달 빠져나가는 구독이 아니라 1년에 한 번 결제합니다. 사전 예약(첫눈도장)하시면 출시 후 첫 1년이 무료입니다. 본인과 가족 2명까지.",
+    a: "연간 9,900원입니다(7일 무료 체험 후 구매). 매달 빠져나가는 구독이 아니라 1년에 한 번 결제합니다. 사전 예약(첫 눈도장)하시면 출시 후 첫 1년이 무료입니다. 본인과 가족 2명까지.",
   },
   {
     q: "아이폰에서도 되나요?",
@@ -40,7 +41,8 @@ export default function FaqSection() {
     <section id="faq" aria-labelledby="faq-title" className="px-5 py-[16vh] sm:px-10">
       <div className="mx-auto grid max-w-[1240px] gap-12 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)]">
         <SectionHead id="faq-title" eyebrow="자주 묻는 질문" title={"궁금한 점,\n먼저 답해 드립니다."} />
-        <div className="divide-y divide-paper/10 border-y border-paper/10">
+        <div className="relative divide-y divide-paper/10 border-y border-paper/10">
+          <DogPeek pose="dazed" size={120} className="right-6" />
           {FAQ.map((f) => (
             <details key={f.q} className="group">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-6 text-[clamp(1.125rem,1.6vw,1.375rem)] font-semibold text-paper">

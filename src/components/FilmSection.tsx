@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { DogClip } from "@/components/DogMotion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { prefersReducedMotion } from "@/components/providers/PrefsProvider";
@@ -56,7 +57,9 @@ export default function FilmSection() {
           <p className="text-[1.0625rem] text-paper/60">1분 12초 · 소리와 함께 보세요</p>
         </div>
 
-        <div ref={wrapRef} className="relative mt-10 aspect-video overflow-hidden rounded-[28px] bg-ink-2">
+        <div className="relative mt-10">
+        <DogClip clip="headspin" className="absolute -top-28 right-2 z-10 h-36 w-36 sm:-top-36 sm:-right-6 sm:h-44 sm:w-44" />
+        <div ref={wrapRef} className="relative aspect-video overflow-hidden rounded-[28px] bg-ink-2">
           <video
             ref={videoRef}
             className="h-full w-full object-cover"
@@ -87,6 +90,7 @@ export default function FilmSection() {
               </span>
             </button>
           )}
+        </div>
         </div>
         <p className="mt-4 text-[0.875rem] text-paper/45">영상 속 인물과 화면은 AI로 만든 가상 이미지입니다.</p>
       </div>

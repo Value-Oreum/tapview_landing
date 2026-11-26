@@ -29,7 +29,7 @@ export default function PromoCta() {
           <article data-reveal className="relative flex flex-col rounded-[36px] border border-paper/12 bg-paper/[0.04] p-8 pt-24 sm:p-10 sm:pt-28">
             <Dog pose="gift" motion="hop" className="absolute -top-10 left-6 h-36 w-36 sm:h-40 sm:w-40" />
             <p className="text-[0.9375rem] font-semibold text-mint/80">사전 예약</p>
-            <h3 className="mt-2 text-[clamp(1.75rem,3vw,2.5rem)] font-semibold tracking-[-0.03em] text-paper">첫눈도장</h3>
+            <h3 className="mt-2 text-[clamp(1.75rem,3vw,2.5rem)] font-semibold tracking-[-0.03em] text-paper">첫 눈도장</h3>
             <p className="mt-4 text-[clamp(1.25rem,2vw,1.625rem)] leading-[1.35] font-semibold text-paper">
               출시 후 <span className="text-mint">첫 1년 무료</span>
             </p>
@@ -39,7 +39,7 @@ export default function PromoCta() {
                 href="/reserve"
                 className="inline-flex h-14 w-full items-center justify-center gap-3 rounded-full bg-paper text-[1.0625rem] font-extrabold text-forest transition-transform hover:scale-[1.02] sm:w-auto sm:px-8"
               >
-                첫눈도장 찍기
+                첫 눈도장 찍기
               </a>
             </div>
           </article>

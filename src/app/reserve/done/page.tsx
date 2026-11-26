@@ -4,7 +4,7 @@ import SiteFooter from "@/components/SiteFooter";
 import DoneView from "@/components/reserve/DoneView";
 
 export const metadata: Metadata = {
-  title: "첫눈도장 완료",
+  title: "첫 눈도장 완료",
   robots: { index: false },
 };
 

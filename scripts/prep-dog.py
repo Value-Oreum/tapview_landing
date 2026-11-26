@@ -53,9 +53,21 @@ def components(alpha):
     return lab, comps
 
 
+# 흰 털을 크림색으로 낮춘다 (어두운 화면에서 튀지 않게). 영상(prep-dog-anim.py)과 같은 값.
+TONE = (0.93, 0.905, 0.85)
+
+
+def tone(im):
+    a = np.asarray(im).astype(np.float32)
+    a[..., 0] *= TONE[0]
+    a[..., 1] *= TONE[1]
+    a[..., 2] *= TONE[2]
+    return Image.fromarray(np.clip(a, 0, 255).astype(np.uint8), "RGBA")
+
+
 for f in sorted(glob.glob(os.path.join(src, "dog-*.png"))):
     name = os.path.basename(f)[4:-4]
-    im = Image.open(f).convert("RGBA")
+    im = tone(Image.open(f).convert("RGBA"))
     im.save(os.path.join(out, f"dog-{name}.webp"), "WEBP", quality=90, method=6)
     if name not in FX:
         continue

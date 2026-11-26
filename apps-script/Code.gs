@@ -208,19 +208,19 @@ function sendWelcome_(type, to, code, beta, name) {
   let subject, inner, text;
   if (type === 'personal' || type === 'family') {
     const invite = site + '/?ref=' + code;
-    subject = '[탭뷰] 첫눈도장이 찍혔어요 (' + code + ')';
+    subject = '[탭뷰] 첫 눈도장이 찍혔어요 (' + code + ')';
     inner =
-      '<p style="font-size:22px;font-weight:800;margin:0 0 12px;">' + hi + '첫눈도장, 쾅!</p>' +
+      '<p style="font-size:22px;font-weight:800;margin:0 0 12px;">' + hi + '첫 눈도장, 쾅!</p>' +
       '<p>탭뷰 사전 예약이 접수되었습니다. 이제 <b>탭뷰어</b>가 되셨어요.</p>' +
       '<div style="margin:24px 0;padding:20px;border:2px solid #ffd45a;border-radius:16px;text-align:center;">' +
       '<div style="font-size:14px;color:#6b706c;">내 눈도장 코드</div>' +
       '<div style="font-size:30px;font-weight:800;letter-spacing:1px;margin-top:4px;">' + code + '</div>' +
       '<div style="margin-top:8px;font-weight:700;color:#013f15;">출시 후 첫 1년 무료 · 본인+가족 2명</div></div>' +
       (beta ? '<p>체험단(평생 눈도장) 신청도 함께 받았습니다. 선발되시면 따로 연락드릴게요.</p>' : '') +
-      '<p>아래 내 링크로 <b>3명이 첫눈도장을 찍으면</b> 평생 눈도장 체험단에 우선 선발됩니다.<br>' +
+      '<p>아래 내 링크로 <b>3명이 첫 눈도장을 찍으면</b> 평생 눈도장 체험단에 우선 선발됩니다.<br>' +
       '<a href="' + invite + '" style="color:#013f15;font-weight:700;">' + invite + '</a></p>' +
       '<p style="color:#6b706c;">출시 소식과 혜택은 이 메일과 문자로 가장 먼저 알려 드릴게요. #첫눈에탭</p>';
-    text = '첫눈도장이 찍혔어요. 코드 ' + code + ' / 출시 후 첫 1년 무료(본인+가족 2명). 내 링크: ' + invite;
+    text = '첫 눈도장이 찍혔어요. 코드 ' + code + ' / 출시 후 첫 1년 무료(본인+가족 2명). 내 링크: ' + invite;
   } else if (type === 'org') {
     subject = '[탭뷰] 기관 신청을 잘 받았습니다';
     inner = '<p style="font-size:22px;font-weight:800;margin:0 0 12px;">기관 신청 감사합니다.</p><p>' + hi + '보내 주신 내용을 살펴보고 담당자가 연락드리겠습니다. 스마트폰 교실에서 함께 설치하는 방식과 복지관 전용 화면을 안내해 드릴게요.</p>';

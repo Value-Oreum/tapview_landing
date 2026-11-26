@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { DogWalker } from "@/components/DogMotion";
 import { useRouter } from "next/navigation";
 import Dog from "@/components/Dog";
 
@@ -215,7 +216,7 @@ export default function ReserveForm() {
             </button>
           ))}
         </div>
-        <Dog pose="run" motion="dash" className="absolute -top-20 right-2 h-24 w-24 sm:-top-24 sm:h-28 sm:w-28" />
+        <DogWalker size={76} />
       </div>
 
       <div className="mt-10 grid gap-9">
@@ -237,7 +238,7 @@ export default function ReserveForm() {
         {kind === "family" && (
           <>
             <div className="rounded-[24px] border border-paper/10 bg-paper/[0.03] p-5 text-[1rem] leading-[1.6] text-paper/75">
-              부모님 대신 신청하시는 분의 연락처로 안내를 드립니다. 첫눈도장 혜택은 <b className="text-paper">본인과 가족 2명</b>까지
+              부모님 대신 신청하시는 분의 연락처로 안내를 드립니다. 첫 눈도장 혜택은 <b className="text-paper">본인과 가족 2명</b>까지
               함께 쓸 수 있어요.
             </div>
             {contactBlock("신청하시는 분")}
@@ -377,7 +378,7 @@ export default function ReserveForm() {
           disabled={busy}
           className="group inline-flex h-16 items-center justify-center gap-3 rounded-full bg-paper text-[1.25rem] font-extrabold text-forest transition-transform hover:scale-[1.01] active:scale-[0.98] disabled:opacity-60"
         >
-          {busy ? "접수하는 중…" : kind === "org" ? "기관 신청하기" : "첫눈도장 찍기"}
+          {busy ? "접수하는 중…" : kind === "org" ? "기관 신청하기" : "첫 눈도장 찍기"}
         </button>
       </div>
     </form>

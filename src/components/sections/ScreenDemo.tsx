@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { DogClip } from "@/components/DogMotion";
 import PhoneFrame from "@/components/story/PhoneFrame";
 
 type Setting = { size: 0 | 1; dark: 0 | 1; strong: 0 | 1 };
@@ -65,6 +66,7 @@ export default function ScreenDemo() {
         <PhoneFrame>
           <Sample s={s} />
         </PhoneFrame>
+        {done && <DogClip clip="cheer" className="absolute -right-16 -bottom-4 h-32 w-32 sm:-right-24 sm:h-36 sm:w-36" />}
         {done && (
           <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-tap px-4 py-1.5 text-[0.9375rem] font-extrabold whitespace-nowrap text-ink">
             내 화면 완성!

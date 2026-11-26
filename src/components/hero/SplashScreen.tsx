@@ -1,15 +1,7 @@
 /**
- * 히어로 폰 속 '앱 스플래시' 화면. 딥그린 바탕 위에서 강아지가 자다가 깨어 손을 흔든다.
- * 포즈마다 몸통(body)과 효과 표시(fx: Zzz·점·별·선)를 나눠 두어 따로 움직인다.
- * 위치·크기는 화면 너비 기준(cqw), 세로 위치는 Hero가 알약 창 높이에 맞춰 --dog-y로 넘겨준다.
+ * 히어로 폰 속 '앱 스플래시' 화면: 딥그린 바탕 + 탭뷰 로고.
+ * 강아지는 폰보다 크게 보이도록 Hero의 별도 층(HeroDog)에서 그린다.
  */
-const POSES = [
-  { key: "sleep", alt: "" },
-  { key: "dazed", alt: "" },
-  { key: "jump", alt: "" },
-  { key: "wave", alt: "" },
-] as const;
-
 export default function SplashScreen() {
   return (
     <div className="splash-screen">
@@ -29,16 +21,17 @@ export default function SplashScreen() {
           </svg>
         </span>
       </div>
-
-      <div className="splash-dog" data-dog>
-        <span className="dog-shadow" data-dog-shadow />
-        {POSES.map((p) => (
-          <div key={p.key} className="dog-pose" data-pose={p.key}>
-            <img src={`/dog/dog-${p.key}-body.webp`} alt={p.alt} width={512} height={512} draggable={false} data-body />
-            <img src={`/dog/dog-${p.key}-fx.webp`} alt="" width={512} height={512} draggable={false} data-fx className="dog-fx" />
-          </div>
-        ))}
-      </div>
+      <img
+        src="/brand/logo-white.png"
+        alt=""
+        width={640}
+        height={222}
+        className="absolute top-[9%] left-1/2 w-[46cqw] -translate-x-1/2 opacity-95"
+        draggable={false}
+      />
+      <p className="absolute inset-x-0 bottom-[7%] text-center text-[4.2cqw] font-semibold tracking-[-0.01em] text-paper/70">
+        선명하게 보이면, 탭.
+      </p>
     </div>
   );
 }

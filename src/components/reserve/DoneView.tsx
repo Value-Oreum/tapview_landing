@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { DogClip } from "@/components/DogMotion";
 import gsap from "gsap";
 import Dog from "@/components/Dog";
 import { prefersReducedMotion } from "@/components/providers/PrefsProvider";
@@ -40,8 +41,8 @@ async function drawCard(code: string, date: string): Promise<Blob | null> {
   g.fillStyle = "#ffd45a";
   g.textAlign = "center";
   g.textBaseline = "middle";
-  g.font = `800 112px ${family}`;
-  g.fillText("첫눈도장", 0, 0);
+  g.font = `800 82px ${family}`;
+  g.fillText("첫 눈도장", 0, 0);
   g.font = `600 40px ${family}`;
   g.fillText("TapView", 0, -128);
   g.fillText(date.replaceAll("-", "."), 0, 128);
@@ -97,7 +98,7 @@ export default function DoneView() {
   const origin = typeof location !== "undefined" ? location.origin : "https://tapview.app";
   const invite = r.code ? `${origin}/?ref=${r.code}` : origin;
   const parentText = `휴대폰 글씨 잘 안 보이시죠? '탭뷰'를 사전 예약해 두었어요. 출시되면 1년 무료래요. 같이 써 봐요! #첫눈에탭`;
-  const friendText = `나 탭뷰 첫눈도장 찍었어! 사전 예약하면 출시 후 1년 무료래. 너도 찍어 봐 #첫눈에탭 #탭뷰어`;
+  const friendText = `나 탭뷰 첫 눈도장 찍었어! 사전 예약하면 출시 후 1년 무료래. 너도 찍어 봐 #첫눈에탭 #탭뷰어`;
 
   const share = async (text: string, label: string) => {
     try {
@@ -120,7 +121,7 @@ export default function DoneView() {
   const saveImage = async () => {
     const blob = await drawCard(r.code || "TV-0000", r.date);
     if (!blob) return;
-    const file = new File([blob], `첫눈도장_${r.code}.png`, { type: "image/png" });
+    const file = new File([blob], `첫 눈도장_${r.code}.png`, { type: "image/png" });
     if (navigator.canShare?.({ files: [file] })) {
       try {
         await navigator.share({ files: [file], text: friendText });
@@ -167,20 +168,20 @@ export default function DoneView() {
           >
             <span aria-hidden className="absolute inset-3 rounded-full border-2 border-tap" />
             <span className="absolute top-8 text-[0.9375rem] font-semibold">TapView</span>
-            <span className="text-[2.25rem] font-extrabold tracking-[-0.03em]">첫눈도장</span>
+            <span className="text-[1.875rem] font-extrabold tracking-[-0.03em] whitespace-nowrap">첫 눈도장</span>
             <span className="absolute bottom-8 text-[0.875rem] font-semibold">{r.date.replaceAll("-", ".")}</span>
           </div>
           <p className="mt-8 text-[2.5rem] font-extrabold tracking-[0.02em] text-paper">{r.code || "TV-····"}</p>
           <p className="mt-2 text-[1.0625rem] font-semibold text-paper/85">출시 후 첫 1년 무료 · 본인+가족 2명</p>
           <p className="mt-2 text-[1rem] font-semibold text-mint">#첫눈에탭 #탭뷰어</p>
         </div>
-        <Dog pose="cheer" motion="hop" className="absolute -bottom-6 -left-2 h-32 w-32 sm:-left-8 sm:h-36 sm:w-36" delay={0.6} />
-        <Dog pose="dance" motion="wiggle" className="absolute -top-8 -right-2 h-28 w-28 sm:-right-6" delay={0.8} />
+        <DogClip clip="cheer" className="absolute -bottom-8 -left-2 h-36 w-36 sm:-left-10 sm:h-40 sm:w-40" delay={0.6} />
+        <DogClip clip="headspin" className="absolute -top-14 -right-4 h-36 w-36 sm:-right-12" delay={0.8} />
       </div>
 
       <div>
         <h1 className="text-[clamp(2rem,4.4vw,3.5rem)] leading-[1.12] font-semibold tracking-[-0.04em] text-paper">
-          첫눈도장, 쾅!
+          첫 눈도장, 쾅!
           <br />
           <span className="text-mint">탭뷰어가 되셨어요.</span>
         </h1>
@@ -190,7 +191,7 @@ export default function DoneView() {
         </p>
 
         <div className="mt-8 rounded-[24px] border border-mint/30 bg-mint/[0.06] p-5 text-[1.0625rem] leading-[1.6] text-paper/85">
-          <b className="text-paper">내 링크로 3명이 첫눈도장을 찍으면</b>, 평생 눈도장 체험단에 우선 선발됩니다.
+          <b className="text-paper">내 링크로 3명이 첫 눈도장을 찍으면</b>, 평생 눈도장 체험단에 우선 선발됩니다.
         </div>
 
         <div className="mt-8 grid gap-3 sm:grid-cols-2">
