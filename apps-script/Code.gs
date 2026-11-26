@@ -121,7 +121,7 @@ function doGet(e) {
   const pending = q && q.getLastRow() > 1 ? q.getRange(2, 6, q.getLastRow() - 1, 2).getValues().filter((r) => r[0] === '대기') : [];
   return json_({
     ok: true,
-    version: 2,
+    version: 3,
     props: Object.keys(props).filter((k) => k !== 'SECRET'),
     fromAlias: props.FROM_ALIAS || '',
     aliases: GmailApp.getAliases(),
