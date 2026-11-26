@@ -9,7 +9,7 @@ import "../../globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://tapview.app"),
   title: {
-    default: "TapView（タップビュー）— くっきり見えたら、タップ。",
+    default: "TapView",
     template: "%s · TapView",
   },
   description:

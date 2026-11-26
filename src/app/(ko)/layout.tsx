@@ -8,9 +8,10 @@ import "../globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://tapview.app"),
+  // 브라우저 탭에는 'TapView'만 (하위 페이지는 '사전 예약 · TapView'처럼)
   title: {
-    default: "탭뷰 TapView — 선명하게 보이면, 탭.",
-    template: "%s · 탭뷰 TapView",
+    default: "TapView",
+    template: "%s · TapView",
   },
   description:
     "탭하면, 내 눈에 맞는 화면. 작은 글씨에 멈추는 순간을 줄이는 안드로이드 읽기 보조 앱, 탭뷰. 지금 사전 예약하면 출시 후 1년 무료.",
