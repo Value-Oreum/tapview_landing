@@ -5,12 +5,34 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import PhoneStage from "./PhoneStage";
 import { prefersReducedMotion } from "@/components/providers/PrefsProvider";
+import { PRIMARY, type Lang } from "@/lib/i18n";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
-const HEADLINE = ["선명하게", "보이면,", "탭."];
+const T = {
+  ko: {
+    headline: ["선명하게", "보이면,", "탭."],
+    sep: " ",
+    aria: "탭뷰 소개",
+    chip: "첫눈에 탭!",
+    badge: "사전 예약하면 출시 후 1년 무료",
+    sub: "탭하면, 내 눈에 맞는 스마트한 화면.",
+    cta: "사전 예약하기",
+    film: "소개 영상 보기",
+  },
+  ja: {
+    headline: ["くっきり", "見えたら、", "タップ。"],
+    sep: "",
+    aria: "TapViewの紹介",
+    chip: "日本版",
+    badge: "2028年リリース予定・お知らせ登録受付中",
+    sub: "タップするだけで、自分の目に合うスマートな画面に。",
+    cta: "お知らせを受け取る",
+    film: "紹介動画を見る",
+  },
+} as const;
 const ANIM = { wake: "/dog/anim/wake.webp", wave: "/dog/anim/wave-loop.webp" };
 const WAKE_SEC = 76 / 15; // 깨어나 손 흔들기 영상 길이 (76프레임, 15fps)
 
@@ -19,7 +41,9 @@ const WAKE_SEC = 76 / 15; // 깨어나 손 흔들기 영상 길이 (76프레임,
  * Tap|View 사이 가는 선이 부드럽게 둥근 렌즈로 열리고, 렌즈 안에서 초점이 맞으며 흐린 화면이 선명해진다.
  * 렌즈 가운데의 강아지는 자다가 깨어 벌떡 일어나 손을 흔든다. 스크롤하면 렌즈가 화면 전체로 커진다.
  */
-export default function Hero() {
+export default function Hero({ lang = "ko" }: { lang?: Lang }) {
+  const t = T[lang];
+  const HEADLINE = t.headline;
   const heroRef = useRef<HTMLElement>(null);
   const sharpRef = useRef<HTMLDivElement>(null);
   const zoomRef = useRef<HTMLDivElement>(null);
@@ -211,15 +235,15 @@ export default function Hero() {
   }, []);
 
   return (
-    <section ref={heroRef} id="top" className="hero" aria-label="탭뷰 소개">
+    <section ref={heroRef} id="top" className="hero" aria-label={t.aria}>
       {/* 흐린 판 */}
       <div className="stage stage--blur" aria-hidden="true">
-        <PhoneStage priority />
+        <PhoneStage priority lang={lang} />
       </div>
       {/* 선명한 판: 렌즈 모양으로만 보이고, 안쪽은 살짝 확대 */}
       <div ref={sharpRef} className="stage stage--sharp" aria-hidden="true">
         <div ref={zoomRef} className="lens-zoom">
-          <PhoneStage />
+          <PhoneStage lang={lang} />
         </div>
       </div>
       <div className="hero-scrim" aria-hidden="true" />
@@ -243,8 +267,8 @@ export default function Hero() {
               data-rise
               className="glass mb-4 hidden w-fit items-center gap-2 rounded-full py-1 pr-4 pl-1 text-[0.875rem] text-paper/90 sm:inline-flex"
             >
-              <span className="rounded-full bg-tap px-2.5 py-1 text-[0.75rem] font-extrabold text-ink">첫눈에 탭!</span>
-              사전 예약하면 출시 후 1년 무료
+              <span className="rounded-full bg-tap px-2.5 py-1 text-[0.75rem] font-extrabold text-ink">{t.chip}</span>
+              {t.badge}
             </p>
             <h1 className="text-[clamp(2rem,3.8vw,3.5rem)] leading-[1.08] font-semibold tracking-[-0.035em] text-paper">
               {HEADLINE.map((w, i) => (
@@ -252,20 +276,20 @@ export default function Hero() {
                   <span data-blur-word className={`blur-word ${i === 2 ? "text-mint" : ""}`}>
                     {w}
                   </span>
-                  {i < HEADLINE.length - 1 ? " " : ""}
+                  {i < HEADLINE.length - 1 ? t.sep : ""}
                 </span>
               ))}
             </h1>
             <p data-rise className="mt-3 text-[clamp(1.0625rem,1.3vw,1.25rem)] leading-[1.55] text-paper/78">
-              탭하면, 내 눈에 맞는 스마트한 화면.
+              {t.sub}
             </p>
           </div>
           <div data-rise className="flex flex-wrap items-center gap-3">
             <a
-              href="/reserve"
-              className="group inline-flex h-14 flex-1 items-center justify-center gap-3 rounded-full bg-paper pr-2 pl-7 text-[1.0625rem] font-extrabold text-forest transition-transform duration-200 hover:scale-[1.02] active:scale-[0.97] sm:flex-none"
+              href={PRIMARY[lang]}
+              className="group inline-flex h-14 flex-1 items-center justify-center gap-3 rounded-full bg-paper pr-2 pl-7 whitespace-nowrap text-[1.0625rem] font-extrabold text-forest transition-transform duration-200 hover:scale-[1.02] active:scale-[0.97] sm:flex-none"
             >
-              사전 예약하기
+              {t.cta}
               <span className="grid h-10 w-10 place-items-center rounded-full bg-forest text-paper transition-transform duration-300 group-hover:-rotate-45">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden>
                   <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
@@ -276,14 +300,18 @@ export default function Hero() {
               href="#film-player"
               data-offset="96"
               onClick={() => window.dispatchEvent(new CustomEvent("tv:play-film"))}
-              className="glass inline-flex h-14 items-center gap-3 rounded-full pr-6 pl-2 text-[1.0625rem] font-semibold text-paper/90 transition-colors hover:text-paper"
+              aria-label={t.film}
+              className={`glass inline-flex h-14 items-center gap-3 rounded-full pr-6 pl-2 whitespace-nowrap text-[1.0625rem] font-semibold text-paper/90 transition-colors hover:text-paper ${
+                lang === "ja" ? "max-sm:pr-2" : ""
+              }`}
             >
               <span className="grid h-10 w-10 place-items-center rounded-full bg-paper/15" aria-hidden>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" />
                 </svg>
               </span>
-              소개 영상 보기
+              {/* 일본어는 글자가 길어 휴대폰에서는 재생 아이콘만 */}
+              <span className={lang === "ja" ? "max-sm:sr-only" : ""}>{t.film}</span>
             </a>
           </div>
         </div>

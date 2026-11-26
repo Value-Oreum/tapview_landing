@@ -3,12 +3,47 @@
 import { useRef, useState } from "react";
 import gsap from "gsap";
 import { prefersReducedMotion } from "@/components/providers/PrefsProvider";
+import type { Lang } from "@/lib/i18n";
+
+const T = {
+  ko: {
+    eyebrow: "직접 해 보세요",
+    q: "어느 쪽이 더 선명해요?",
+    group: "더 선명한 쪽 고르기",
+    date: "12월 3일(수)",
+    time: "오전 10:30",
+    picked: "선택",
+    chip: "탭!",
+    dog: "엄지를 든 탭뷰 강아지",
+    head: "선명하게 보이면, ",
+    tap: "탭.",
+    a: "이쪽이 더 편하다면, 탭뷰는 이쪽으로 맞춥니다. 고르는 건 언제나 내 눈입니다.",
+    b: "고르기만 하면 끝. 탭뷰는 고른 쪽으로 내 화면을 맞춥니다.",
+    idle: "편한 쪽을 눌러 보세요.",
+  },
+  ja: {
+    eyebrow: "試してみてください",
+    q: "どちらがくっきり見えますか？",
+    group: "くっきり見える方を選ぶ",
+    date: "12月3日(水)",
+    time: "午前10:30",
+    picked: "選択",
+    chip: "タップ！",
+    dog: "親指を立てるTapViewの犬",
+    head: "くっきり見えたら、",
+    tap: "タップ。",
+    a: "こちらが楽なら、TapViewはこちらに合わせます。選ぶのは、いつも自分の目です。",
+    b: "選ぶだけでOK。TapViewは選んだ方に、画面を合わせます。",
+    idle: "楽に見える方を押してみてください。",
+  },
+} as const;
 
 /**
  * 스토리의 절정: 방문자가 직접 '더 선명한 쪽'을 탭해 본다 (탭뷰의 핵심 경험).
  * 어느 쪽을 골라도 '고른 쪽으로 맞춘다'는 탭뷰 방식을 그대로 보여 준다.
  */
-export default function TapChoice() {
+export default function TapChoice({ lang = "ko" }: { lang?: Lang }) {
+  const t = T[lang];
   const [picked, setPicked] = useState<null | "a" | "b">(null);
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -52,12 +87,12 @@ export default function TapChoice() {
 
   return (
     <div ref={rootRef} className="relative mx-auto max-w-[980px] text-center">
-      <p className="text-[0.9375rem] font-semibold tracking-[0.04em] text-mint/80">직접 해 보세요</p>
+      <p className="text-[0.9375rem] font-semibold tracking-[0.04em] text-mint/80">{t.eyebrow}</p>
       <h3 className="mt-4 text-[clamp(2rem,5vw,4rem)] leading-[1.1] font-semibold tracking-[-0.04em] text-paper">
-        어느 쪽이 더 선명해요?
+        {t.q}
       </h3>
 
-      <div className="mt-12 grid grid-cols-2 gap-3 sm:gap-6" role="group" aria-label="더 선명한 쪽 고르기">
+      <div className="mt-12 grid grid-cols-2 gap-3 sm:gap-6" role="group" aria-label={t.group}>
         {(["a", "b"] as const).map((k) => {
           const blurred = k === "a";
           const isPicked = picked === k;
@@ -83,13 +118,13 @@ export default function TapChoice() {
                 } ${blurred ? "" : "tracking-[-0.02em]"}`}
                 style={blurred ? { fontSize: "clamp(0.95rem,2.2vw,1.5rem)" } : undefined}
               >
-                12월 3일(수)
+                {t.date}
                 <br />
-                오전 10:30
+                {t.time}
               </span>
               {isPicked && (
                 <span className="absolute top-4 right-4 rounded-full bg-tap px-3 py-1 text-[0.8125rem] font-extrabold text-ink">
-                  선택
+                  {t.picked}
                 </span>
               )}
             </button>
@@ -102,7 +137,7 @@ export default function TapChoice() {
         aria-hidden
         className="pointer-events-none absolute top-0 left-0 rounded-full bg-tap px-4 py-1.5 text-[1.125rem] font-extrabold text-ink opacity-0"
       >
-        탭!
+        {t.chip}
       </span>
 
       <div aria-live="polite" className="mt-12 min-h-[11rem] sm:min-h-[9rem]">
@@ -111,24 +146,23 @@ export default function TapChoice() {
             <img
               data-tap-dog
               src="/dog/dog-thumb.webp"
-              alt="엄지를 든 탭뷰 강아지"
+              alt={t.dog}
               width={512}
               height={512}
               className="h-28 w-28 sm:h-32 sm:w-32"
             />
             <div className="text-center sm:text-left">
               <p data-tap-sharpen className="text-[clamp(1.75rem,4vw,3rem)] leading-[1.15] font-semibold tracking-[-0.035em] text-paper">
-                선명하게 보이면, <span className="text-mint">탭.</span>
+                {t.head}
+                <span className="text-mint">{t.tap}</span>
               </p>
               <p data-tap-sharpen className="mt-2 text-[1.125rem] text-paper/75">
-                {picked === "a"
-                  ? "이쪽이 더 편하다면, 탭뷰는 이쪽으로 맞춥니다. 고르는 건 언제나 내 눈입니다."
-                  : "고르기만 하면 끝. 탭뷰는 고른 쪽으로 내 화면을 맞춥니다."}
+                {picked === "a" ? t.a : t.b}
               </p>
             </div>
           </div>
         ) : (
-          <p className="text-[1.0625rem] text-paper/55">편한 쪽을 눌러 보세요.</p>
+          <p className="text-[1.0625rem] text-paper/55">{t.idle}</p>
         )}
       </div>
     </div>

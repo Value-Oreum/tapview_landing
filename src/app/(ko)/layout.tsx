@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { paperlogy } from "./fonts";
+import { paperlogy } from "../fonts";
 import PrefsProvider, { prefsBootScript } from "@/components/providers/PrefsProvider";
-import "./globals.css";
+import "../globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://tapview.app"),

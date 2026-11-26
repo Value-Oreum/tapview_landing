@@ -3,17 +3,57 @@
 import { useState } from "react";
 import { DogClip } from "@/components/DogMotion";
 import PhoneFrame from "@/components/story/PhoneFrame";
+import type { Lang } from "@/lib/i18n";
 
 type Setting = { size: 0 | 1; dark: 0 | 1; strong: 0 | 1 };
 
-const STEPS = [
-  { key: "size", title: "글자 크기", q: "어느 쪽이 편하세요?", a: "지금 크기", b: "크게" },
-  { key: "dark", title: "바탕", q: "어느 바탕이 편하세요?", a: "밝은 바탕", b: "어두운 바탕" },
-  { key: "strong", title: "또렷함", q: "어느 쪽이 더 또렷해요?", a: "보통", b: "더 또렷하게" },
-] as const;
+const STEPS_BY = {
+  ko: [
+    { key: "size", title: "글자 크기", q: "어느 쪽이 편하세요?", a: "지금 크기", b: "크게" },
+    { key: "dark", title: "바탕", q: "어느 바탕이 편하세요?", a: "밝은 바탕", b: "어두운 바탕" },
+    { key: "strong", title: "또렷함", q: "어느 쪽이 더 또렷해요?", a: "보통", b: "더 또렷하게" },
+  ],
+  ja: [
+    { key: "size", title: "文字の大きさ", q: "どちらが楽ですか？", a: "今の大きさ", b: "大きく" },
+    { key: "dark", title: "背景", q: "どちらの背景が楽ですか？", a: "明るい背景", b: "暗い背景" },
+    { key: "strong", title: "くっきり度", q: "どちらがくっきり見えますか？", a: "ふつう", b: "よりくっきり" },
+  ],
+} as const;
+
+const T = {
+  ko: {
+    mark: "약",
+    shop: "새봄약국",
+    msg1: "처방약이 준비되었습니다.",
+    msg2: "오늘 오후 6시까지 받아 가세요.",
+    steps: "진행 단계",
+    done: "내 화면 완성!",
+    tap: "탭",
+    end1: "세 번 탭으로 끝. 이제 이 화면이 ",
+    mine: "내 화면",
+    end2: "입니다.",
+    note: "실제 앱에서는 고른 조합이 기기에 저장되고, 홈 화면 위젯을 한 번 누르면 언제든 이 화면으로 바뀝니다.",
+    again: "처음부터 다시",
+  },
+  ja: {
+    mark: "薬",
+    shop: "はるかぜ薬局",
+    msg1: "お薬の準備ができました。",
+    msg2: "本日18時までにお受け取りください。",
+    steps: "進行ステップ",
+    done: "自分の画面、完成！",
+    tap: "タップ",
+    end1: "3回のタップで完了。この画面が",
+    mine: "自分の画面",
+    end2: "です。",
+    note: "実際のアプリでは、選んだ組み合わせが端末に保存され、ホーム画面のウィジェットをひと押しすれば、いつでもこの画面に切り替わります。",
+    again: "最初からやり直す",
+  },
+} as const;
 
 /** 데모 화면 속 문자 (가상의 약국 안내) */
-function Sample({ s, mini = false }: { s: Setting; mini?: boolean }) {
+function Sample({ s, mini = false, lang = "ko" }: { s: Setting; mini?: boolean; lang?: Lang }) {
+  const t = T[lang];
   const bg = s.dark ? "#121614" : "#f4f5f2";
   const fg = s.dark ? (s.strong ? "#ffffff" : "#c9cec9") : s.strong ? "#000000" : "#5d625e";
   const bubble = s.dark ? (s.strong ? "#262c28" : "#1e2320") : s.strong ? "#ffffff" : "#e6e8e4";
@@ -25,8 +65,8 @@ function Sample({ s, mini = false }: { s: Setting; mini?: boolean }) {
     >
       {!mini && (
         <div className="flex items-center gap-[3cqw] px-[6cqw] pt-[9cqw] text-[5.4cqw] font-semibold" style={{ color: fg }}>
-          <span className="grid h-[9cqw] w-[9cqw] place-items-center rounded-full bg-[#2e5b43] text-[4.4cqw] text-white">약</span>
-          새봄약국
+          <span className="grid h-[9cqw] w-[9cqw] place-items-center rounded-full bg-[#2e5b43] text-[4.4cqw] text-white">{t.mark}</span>
+          {t.shop}
         </div>
       )}
       <div
@@ -40,16 +80,18 @@ function Sample({ s, mini = false }: { s: Setting; mini?: boolean }) {
           boxShadow: s.strong && !s.dark ? "0 0 0 0.5cqw rgba(0,0,0,.12)" : "none",
         }}
       >
-        처방약이 준비되었습니다.
+        {t.msg1}
         <br />
-        오늘 오후 6시까지 받아 가세요.
+        {t.msg2}
       </div>
     </div>
   );
 }
 
 /** 서비스 섹션의 '내 화면 찾기' 3단계 데모 */
-export default function ScreenDemo() {
+export default function ScreenDemo({ lang = "ko" }: { lang?: Lang }) {
+  const t = T[lang];
+  const STEPS = STEPS_BY[lang];
   const [s, setS] = useState<Setting>({ size: 0, dark: 0, strong: 0 });
   const [step, setStep] = useState(0);
   const done = step >= STEPS.length;
@@ -64,18 +106,18 @@ export default function ScreenDemo() {
     <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
       <div className="relative mx-auto w-[min(62vw,300px)]">
         <PhoneFrame>
-          <Sample s={s} />
+          <Sample s={s} lang={lang} />
         </PhoneFrame>
         {done && <DogClip clip="cheer" className="absolute -right-16 -bottom-4 h-32 w-32 sm:-right-24 sm:h-36 sm:w-36" />}
         {done && (
           <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-tap px-4 py-1.5 text-[0.9375rem] font-extrabold whitespace-nowrap text-ink">
-            내 화면 완성!
+            {t.done}
           </span>
         )}
       </div>
 
       <div>
-        <ol className="flex gap-2" aria-label="진행 단계">
+        <ol className="flex gap-2" aria-label={t.steps}>
           {STEPS.map((x, i) => (
             <li
               key={x.key}
@@ -106,14 +148,14 @@ export default function ScreenDemo() {
                       className="group overflow-hidden rounded-[22px] border border-paper/15 bg-paper/[0.03] text-left transition-[border-color,transform] duration-200 hover:border-mint/70 active:scale-[0.98]"
                     >
                       <div className="relative aspect-[4/3]" style={{ containerType: "inline-size" }}>
-                        <Sample s={preview} mini />
+                        <Sample s={preview} mini lang={lang} />
                       </div>
                       <span className="flex items-center justify-between px-4 py-3 text-[1rem] font-semibold text-paper">
                         <span>
                           {v + 1}. {v === 0 ? cur.a : cur.b}
                         </span>
                         <span className="text-mint opacity-0 transition-opacity group-hover:opacity-100" aria-hidden>
-                          탭
+                          {t.tap}
                         </span>
                       </span>
                     </button>
@@ -124,10 +166,12 @@ export default function ScreenDemo() {
           ) : (
             <div className="mt-8">
               <p className="text-[clamp(1.5rem,3vw,2.25rem)] leading-[1.25] font-semibold tracking-[-0.03em] text-paper">
-                세 번 탭으로 끝. 이제 이 화면이 <span className="text-mint">내 화면</span>입니다.
+                {t.end1}
+                <span className="text-mint">{t.mine}</span>
+                {t.end2}
               </p>
               <p className="mt-4 text-[1.125rem] leading-[1.6] text-paper/70">
-                실제 앱에서는 고른 조합이 기기에 저장되고, 홈 화면 위젯을 한 번 누르면 언제든 이 화면으로 바뀝니다.
+                {t.note}
               </p>
               <button
                 type="button"
@@ -137,7 +181,7 @@ export default function ScreenDemo() {
                 }}
                 className="mt-6 inline-flex h-12 items-center rounded-full border border-paper/20 px-6 text-[1rem] font-semibold text-paper/85 hover:border-paper/50"
               >
-                처음부터 다시
+                {t.again}
               </button>
             </div>
           )}

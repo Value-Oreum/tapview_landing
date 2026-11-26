@@ -1,8 +1,10 @@
+import type { Lang } from "@/lib/i18n";
+
 /**
  * 히어로 폰 속 '앱 스플래시' 화면: 딥그린 바탕 + 탭뷰 로고.
  * 강아지는 폰보다 크게 보이도록 Hero의 별도 층(HeroDog)에서 그린다.
  */
-export default function SplashScreen() {
+export default function SplashScreen({ lang = "ko" }: { lang?: Lang }) {
   return (
     <div className="splash-screen">
       <div className="absolute inset-x-0 top-[1.1%] flex items-center justify-between px-[7cqw] text-[3.9cqw] font-semibold text-paper/70">
@@ -30,7 +32,7 @@ export default function SplashScreen() {
         draggable={false}
       />
       <p className="absolute inset-x-0 bottom-[7%] text-center text-[4.2cqw] font-semibold tracking-[-0.01em] text-paper/70">
-        선명하게 보이면, 탭.
+        {lang === "ja" ? "くっきり見えたら、タップ。" : "선명하게 보이면, 탭."}
       </p>
     </div>
   );

@@ -97,7 +97,7 @@ export default function PrivacyPage() {
         <article className="mx-auto max-w-[820px]">
           <h1 className="text-[clamp(2rem,4.4vw,3.25rem)] font-semibold tracking-[-0.04em] text-paper">개인정보처리방침</h1>
           <p className="mt-4 text-[1.0625rem] text-paper/60">
-            탭뷰 팀(이하 &apos;탭뷰&apos;)은 사전 예약과 문의를 처리하며 「개인정보 보호법」을 지킵니다. 시행일 2026년 11월 29일.
+            탭뷰 팀(이하 &apos;탭뷰&apos;)은 사전 예약과 문의를 처리하며 「개인정보 보호법」을 지킵니다. 시행일 2026년 11월 26일.
           </p>
           <div className="mt-12 grid gap-10 text-[1.0625rem] leading-[1.8] text-paper/80 [&_li]:mt-1 [&_li]:ml-5 [&_li]:list-disc [&_p+p]:mt-3 [&_p+ul]:mt-3 [&_ul+p]:mt-3">
             {SECTIONS.map((s) => (

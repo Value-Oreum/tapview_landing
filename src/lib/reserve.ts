@@ -24,7 +24,7 @@ export function clean(type: SubmitType, d: Data): { ok: true; data: Data } | { o
   const out: Data = {};
   const need = (k: string, label: string, max = 100) => {
     const v = str(d[k], max);
-    if (!v) throw new Error(`${label}을(를) 입력해 주세요.`);
+    if (!v) throw new Error(type === "japan" ? `${label}を入力してください。` : `${label}을(를) 입력해 주세요.`);
     out[k] = v;
   };
   const opt = (k: string, max = 200) => {

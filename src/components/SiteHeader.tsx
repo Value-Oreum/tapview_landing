@@ -3,14 +3,48 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { usePrefs } from "@/components/providers/PrefsProvider";
+import { HOME, PRIMARY, type Lang } from "@/lib/i18n";
 
-const LINKS = [
-  { href: "#story", label: "브랜드 스토리" },
-  { href: "#service", label: "서비스" },
-  { href: "#tech", label: "기술" },
-  { href: "#institution", label: "기관" },
-  { href: "#team", label: "팀" },
-];
+const T = {
+  ko: {
+    links: [
+      { href: "#story", label: "브랜드 스토리" },
+      { href: "#service", label: "서비스" },
+      { href: "#tech", label: "기술" },
+      { href: "#institution", label: "기관" },
+      { href: "#team", label: "팀" },
+    ],
+    home: "탭뷰 처음으로",
+    nav: "주요 메뉴",
+    prefs: "읽기 편의",
+    big: "글자 크게",
+    bigMark: "가",
+    calm: "움직임 줄이기",
+    cta: "사전 예약",
+    open: "메뉴 열기",
+    close: "메뉴 닫기",
+    other: { href: "/ja", label: "日本語", aria: "日本語ページへ" },
+  },
+  ja: {
+    links: [
+      { href: "#story", label: "ストーリー" },
+      { href: "#service", label: "サービス" },
+      { href: "#tech", label: "技術" },
+      { href: "#roadmap", label: "ロードマップ" },
+      { href: "#team", label: "チーム" },
+    ],
+    home: "TapView トップへ",
+    nav: "メインメニュー",
+    prefs: "読みやすさ",
+    big: "文字を大きく",
+    bigMark: "あ",
+    calm: "動きを減らす",
+    cta: "お知らせ登録",
+    open: "メニューを開く",
+    close: "メニューを閉じる",
+    other: { href: "/", label: "한국어", aria: "한국어 페이지로" },
+  },
+} as const;
 
 function Toggle({
   pressed,
@@ -38,11 +72,12 @@ function Toggle({
   );
 }
 
-export default function SiteHeader() {
+export default function SiteHeader({ lang = "ko" }: { lang?: Lang }) {
+  const t = T[lang];
   const { largeText, reduceMotion, toggleLargeText, toggleReduceMotion } = usePrefs();
   const [open, setOpen] = useState(false);
-  const home = usePathname() === "/";
-  const links = LINKS.map((l) => ({ ...l, href: home ? l.href : `/${l.href}` }));
+  const home = usePathname() === HOME[lang];
+  const links = t.links.map((l) => ({ ...l, href: home ? l.href : `${HOME[lang]}${l.href}` }));
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -71,11 +106,11 @@ export default function SiteHeader() {
           scrolled ? "bg-ink/80" : ""
         }`}
       >
-        <a href={home ? "#top" : "/"} className="flex items-center" aria-label="탭뷰 처음으로">
+        <a href={home ? "#top" : HOME[lang]} className="flex items-center" aria-label={t.home}>
           <img src="/brand/logo-white.png" alt="TapView" width={640} height={222} className="h-[22px] w-auto" />
         </a>
 
-        <nav aria-label="주요 메뉴" className="hidden lg:block">
+        <nav aria-label={t.nav} className="hidden lg:block">
           <ul className="flex items-center gap-1">
             {links.map((l) => (
               <li key={l.href}>
@@ -91,25 +126,33 @@ export default function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-1">
-          <div className="hidden items-center gap-0.5 md:flex" role="group" aria-label="읽기 편의">
-            <Toggle pressed={largeText} onClick={toggleLargeText} label="글자 크게">
-              <span aria-hidden className="text-[0.95rem] leading-none font-extrabold">가</span>
-              글자 크게
+          <a
+            href={t.other.href}
+            lang={lang === "ko" ? "ja" : "ko"}
+            aria-label={t.other.aria}
+            className="hidden h-9 items-center rounded-full px-3 text-[0.8125rem] font-semibold text-paper/80 transition-colors hover:bg-paper/10 hover:text-paper sm:inline-flex"
+          >
+            {t.other.label}
+          </a>
+          <div className="hidden items-center gap-0.5 md:flex" role="group" aria-label={t.prefs}>
+            <Toggle pressed={largeText} onClick={toggleLargeText} label={t.big}>
+              <span aria-hidden className="text-[0.95rem] leading-none font-extrabold">{t.bigMark}</span>
+              {t.big}
             </Toggle>
-            <Toggle pressed={reduceMotion} onClick={toggleReduceMotion} label="움직임 줄이기">
-              움직임 줄이기
+            <Toggle pressed={reduceMotion} onClick={toggleReduceMotion} label={t.calm}>
+              {t.calm}
             </Toggle>
           </div>
           <a
-            href="/reserve"
+            href={PRIMARY[lang]}
             className="ml-1 inline-flex h-10 items-center rounded-full bg-paper px-5 text-[0.9375rem] font-extrabold text-forest transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97]"
           >
-            사전 예약
+            {t.cta}
           </a>
           <button
             type="button"
             className="ml-1 inline-flex h-10 w-10 items-center justify-center rounded-full text-paper lg:hidden"
-            aria-label={open ? "메뉴 닫기" : "메뉴 열기"}
+            aria-label={open ? t.close : t.open}
             aria-expanded={open}
             aria-controls="mobile-menu"
             onClick={() => setOpen((v) => !v)}
@@ -143,14 +186,22 @@ export default function SiteHeader() {
               </li>
             ))}
           </ul>
-          <div className="mt-4 flex flex-wrap gap-2 border-t border-paper/10 pt-4" role="group" aria-label="읽기 편의">
-            <Toggle pressed={largeText} onClick={toggleLargeText} label="글자 크게">
-              <span aria-hidden className="text-[0.95rem] leading-none font-extrabold">가</span>
-              글자 크게
+          <div className="mt-4 flex flex-wrap gap-2 border-t border-paper/10 pt-4" role="group" aria-label={t.prefs}>
+            <Toggle pressed={largeText} onClick={toggleLargeText} label={t.big}>
+              <span aria-hidden className="text-[0.95rem] leading-none font-extrabold">{t.bigMark}</span>
+              {t.big}
             </Toggle>
-            <Toggle pressed={reduceMotion} onClick={toggleReduceMotion} label="움직임 줄이기">
-              움직임 줄이기
+            <Toggle pressed={reduceMotion} onClick={toggleReduceMotion} label={t.calm}>
+              {t.calm}
             </Toggle>
+            <a
+              href={t.other.href}
+              lang={lang === "ko" ? "ja" : "ko"}
+              aria-label={t.other.aria}
+              className="inline-flex h-9 items-center rounded-full px-3 text-[0.8125rem] font-semibold text-paper/80 hover:bg-paper/10 hover:text-paper"
+            >
+              {t.other.label}
+            </a>
           </div>
         </div>
       )}

@@ -456,3 +456,18 @@ html[data-motion="reduce"] .map-pulse {
     opacity: 0;
   }
 }
+
+/* ───────── 일본어 페이지 (/ja) ───────── */
+html[lang="ja"] {
+  --font-sans: var(--font-notojp), "Hiragino Sans", "Yu Gothic", "Meiryo", system-ui, sans-serif;
+}
+/* 일본어는 띄어쓰기가 없어 keep-all이면 줄이 안 바뀐다 → 문절 단위로 바꾼다 */
+html[lang="ja"] body {
+  word-break: normal;
+  word-break: auto-phrase;
+  line-break: strict;
+  letter-spacing: 0;
+}
+html[lang="ja"] :is(h1, h2, h3) {
+  font-feature-settings: "palt";
+}
