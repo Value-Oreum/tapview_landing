@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     template: "%s · 탭뷰 TapView",
   },
   description:
-    "두세 번 탭하면, 내 눈에 맞는 화면. 작은 글씨에 멈추는 순간을 줄이는 안드로이드 읽기 보조 앱, 탭뷰. 지금 사전 예약하면 출시 후 1년 무료.",
+    "탭하면, 내 눈에 맞는 화면. 작은 글씨에 멈추는 순간을 줄이는 안드로이드 읽기 보조 앱, 탭뷰. 지금 사전 예약하면 출시 후 1년 무료.",
   applicationName: "TapView",
   openGraph: {
     type: "website",
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     url: "https://tapview.app",
     siteName: "탭뷰 TapView",
     title: "선명하게 보이면, 탭. — 탭뷰 TapView",
-    description: "두세 번 탭하면, 내 눈에 맞는 화면. 첫눈에 탭! 사전 예약하면 출시 후 1년 무료.",
+    description: "탭하면, 내 눈에 맞는 화면. 첫눈에 탭! 사전 예약하면 출시 후 1년 무료.",
   },
   twitter: { card: "summary_large_image" },
   alternates: { canonical: "/", languages: { ko: "/", ja: "/ja" } },

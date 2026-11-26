@@ -257,7 +257,7 @@ export default function Hero() {
               ))}
             </h1>
             <p data-rise className="mt-3 text-[clamp(1.0625rem,1.3vw,1.25rem)] leading-[1.55] text-paper/78">
-              두세 번 탭하면, 내 눈에 맞는 스마트한 화면.
+              탭하면, 내 눈에 맞는 스마트한 화면.
             </p>
           </div>
           <div data-rise className="flex flex-wrap items-center gap-3">
