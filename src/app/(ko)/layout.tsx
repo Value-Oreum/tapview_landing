@@ -35,8 +35,9 @@ export const metadata: Metadata = {
   publisher: "탭뷰 팀",
   category: "technology",
   formatDetection: { telephone: false, email: false, address: false },
-  // 검색 등록 소유 확인 (네이버 서치어드바이저). 구글 코드를 받으면 google: "…" 로 추가
+  // 검색 등록 소유 확인 (구글 서치 콘솔·네이버 서치어드바이저)
   verification: {
+    google: "kEfYOb6j5aNWxWMd21waod3rWYmL0KZQ-Ek2nYexugk",
     other: { "naver-site-verification": "946f0672c23339226dd7b6f70b23ef0c2901850f" },
   },
   openGraph: {
