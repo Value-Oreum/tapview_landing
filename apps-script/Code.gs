@@ -19,7 +19,7 @@ const TABS = {
 };
 const EXTRA = {
   invite: { name: '초대현황', head: ['초대코드', '초대수', '최근'] },
-  queue: { name: '발송대기', head: ['접수시각', '받는사람', '유형', '코드', '체험단', '상태'] },
+  queue: { name: '발송대기', head: ['접수시각', '받는사람', '유형', '코드', '체험단', '상태', '이유'] },
   news: { name: '소식', head: ['제목', '본문(HTML 가능)', '메모'] },
   newsLog: { name: '발송기록', head: ['발송시각', '받는사람', '제목'] },
 };
@@ -99,9 +99,9 @@ function doPost(e) {
     try { notifyOperator_(req, d); } catch (err) { Logger.log('operator mail: ' + err); }
     try {
       if (MailApp.getRemainingDailyQuota() > 1) sendWelcome_(req.type, d.email, req.code, d.beta, d.name);
-      else queue_(now, d.email, req.type, req.code, d.beta);
+      else queue_(now, d.email, req.type, req.code, d.beta, '하루 발송 한도');
     } catch (err) {
-      queue_(now, d.email, req.type, req.code, d.beta);
+      queue_(now, d.email, req.type, req.code, d.beta, String(err));
     }
     return json_({ ok: true });
   } catch (err) {
@@ -111,8 +111,24 @@ function doPost(e) {
   }
 }
 
-function doGet() {
-  return json_({ ok: true, service: 'tapview-intake' });
+function doGet(e) {
+  const P = PropertiesService.getScriptProperties();
+  const key = e && e.parameter && e.parameter.check;
+  if (!key || key !== P.getProperty('SECRET')) return json_({ ok: true, service: 'tapview-intake' });
+  // 설정 점검 (비밀 키를 아는 사람만): 값 자체는 돌려주지 않는다
+  const props = P.getProperties();
+  const q = SpreadsheetApp.getActive().getSheetByName(EXTRA.queue.name);
+  const pending = q && q.getLastRow() > 1 ? q.getRange(2, 6, q.getLastRow() - 1, 2).getValues().filter((r) => r[0] === '대기') : [];
+  return json_({
+    ok: true,
+    version: 2,
+    props: Object.keys(props).filter((k) => k !== 'SECRET'),
+    fromAlias: props.FROM_ALIAS || '',
+    aliases: GmailApp.getAliases(),
+    quota: MailApp.getRemainingDailyQuota(),
+    pending: pending.length,
+    lastReason: pending.length ? String(pending[pending.length - 1][1]).slice(0, 200) : '',
+  });
 }
 
 function json_(o) {
@@ -133,8 +149,8 @@ function bumpInvite_(code, now) {
   sh.appendRow([code, 1, now]);
 }
 
-function queue_(now, email, type, code, beta) {
-  SpreadsheetApp.getActive().getSheetByName(EXTRA.queue.name).appendRow([now, email, type, code || '', beta ? 'Y' : '', '대기']);
+function queue_(now, email, type, code, beta, reason) {
+  SpreadsheetApp.getActive().getSheetByName(EXTRA.queue.name).appendRow([now, email, type, code || '', beta ? 'Y' : '', '대기', reason || '']);
 }
 
 /** 하루 발송 한도(무료 Gmail 약 100명)를 넘은 확인 메일을 이어서 보낸다 */
@@ -142,7 +158,7 @@ function processQueue() {
   const sh = SpreadsheetApp.getActive().getSheetByName(EXTRA.queue.name);
   const last = sh.getLastRow();
   if (last < 2) return;
-  const rows = sh.getRange(2, 1, last - 1, 6).getValues();
+  const rows = sh.getRange(2, 1, last - 1, 7).getValues();
   for (let i = 0; i < rows.length; i++) {
     if (rows[i][5] !== '대기') continue;
     if (MailApp.getRemainingDailyQuota() < 2) break;
@@ -150,7 +166,7 @@ function processQueue() {
       sendWelcome_(rows[i][2], rows[i][1], rows[i][3], rows[i][4] === 'Y');
       sh.getRange(i + 2, 6).setValue('보냄 ' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'MM-dd HH:mm'));
     } catch (err) {
-      sh.getRange(i + 2, 6).setValue('오류: ' + err);
+      sh.getRange(i + 2, 7).setValue(String(err)); // 상태는 '대기'로 두고 다음에 다시 시도
     }
   }
 }
@@ -158,9 +174,10 @@ function processQueue() {
 /* ───────── 메일 ───────── */
 function send_(to, subject, html, text) {
   const P = PropertiesService.getScriptProperties();
-  const alias = P.getProperty('FROM_ALIAS');
+  const alias = (P.getProperty('FROM_ALIAS') || '').trim();
   const opts = { htmlBody: html, name: '탭뷰 TapView' };
-  if (alias) {
+  // Gmail '다른 주소에서 보내기'에 등록된 별칭일 때만 별칭으로 보낸다 (아니면 기본 주소로)
+  if (alias && GmailApp.getAliases().indexOf(alias) !== -1) {
     opts.from = alias;
     opts.replyTo = alias;
     GmailApp.sendEmail(to, subject, text, opts);
