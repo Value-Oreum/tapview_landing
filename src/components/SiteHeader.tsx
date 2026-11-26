@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { usePrefs } from "@/components/providers/PrefsProvider";
 
 const LINKS = [
@@ -40,6 +41,8 @@ function Toggle({
 export default function SiteHeader() {
   const { largeText, reduceMotion, toggleLargeText, toggleReduceMotion } = usePrefs();
   const [open, setOpen] = useState(false);
+  const home = usePathname() === "/";
+  const links = LINKS.map((l) => ({ ...l, href: home ? l.href : `/${l.href}` }));
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -68,13 +71,13 @@ export default function SiteHeader() {
           scrolled ? "bg-ink/80" : ""
         }`}
       >
-        <a href="#top" className="flex items-center" aria-label="탭뷰 처음으로">
+        <a href={home ? "#top" : "/"} className="flex items-center" aria-label="탭뷰 처음으로">
           <img src="/brand/logo-white.png" alt="TapView" width={640} height={222} className="h-[22px] w-auto" />
         </a>
 
         <nav aria-label="주요 메뉴" className="hidden lg:block">
           <ul className="flex items-center gap-1">
-            {LINKS.map((l) => (
+            {links.map((l) => (
               <li key={l.href}>
                 <a
                   href={l.href}
@@ -128,7 +131,7 @@ export default function SiteHeader() {
       {open && (
         <div id="mobile-menu" className="glass mx-auto mt-2 max-w-[1240px] rounded-[28px] p-5 lg:hidden">
           <ul className="grid gap-1">
-            {LINKS.map((l) => (
+            {links.map((l) => (
               <li key={l.href}>
                 <a
                   href={l.href}

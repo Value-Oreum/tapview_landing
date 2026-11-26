@@ -45,6 +45,14 @@ export default function PrefsProvider({ children }: { children: React.ReactNode 
     const d = document.documentElement;
     setLargeText(d.dataset.text === "lg");
     setUserReduce(d.dataset.motion === "reduce");
+    // 초대 코드·유입 경로 기억 (?ref=TV-XXXX, utm_*) → 신청 때 함께 보냄
+    try {
+      const q = new URLSearchParams(location.search);
+      const ref = q.get("ref");
+      if (ref && /^TV-[A-Z0-9]{4}$/.test(ref)) sessionStorage.setItem("tv-ref", ref);
+      const utm = ["utm_source", "utm_medium", "utm_campaign"].map((k) => q.get(k)).filter(Boolean).join("/");
+      if (utm) sessionStorage.setItem("tv-utm", utm);
+    } catch {}
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     setSystemReduce(mq.matches);
     const on = (e: MediaQueryListEvent) => setSystemReduce(e.matches);

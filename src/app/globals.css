@@ -275,6 +275,119 @@ html[data-motion="reduce"] .screen-squint {
   }
 }
 
+/* ───────── 폼 ───────── */
+.field {
+  display: block;
+  width: 100%;
+  min-height: 3.5rem;
+  border-radius: 16px;
+  background: rgb(var(--fg) / 0.04);
+  border: 1px solid rgb(var(--fg) / 0.16);
+  padding: 0 1.1rem;
+  font-size: 1.125rem;
+  color: rgb(var(--fg));
+  transition:
+    border-color 0.2s,
+    background-color 0.2s;
+}
+.field::placeholder {
+  color: rgb(var(--fg) / 0.35);
+}
+.field:focus {
+  outline: none;
+  border-color: var(--color-mint);
+  background: rgb(var(--fg) / 0.06);
+}
+select.field {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23f2f4ef' stroke-width='2.4'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 1.1rem center;
+}
+select.field option {
+  background: #0c1210;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.9rem;
+  padding: 0 1.1rem;
+  border-radius: 999px;
+  border: 1px solid rgb(var(--fg) / 0.18);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: rgb(var(--fg) / 0.8);
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s,
+    transform 0.2s;
+}
+.chip:hover {
+  border-color: rgb(var(--fg) / 0.4);
+}
+.chip:active {
+  transform: scale(0.96);
+}
+.chip-check {
+  display: inline-block;
+  width: 0;
+  overflow: hidden;
+  transition: width 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.chip--on {
+  background: var(--color-mint);
+  border-color: var(--color-mint);
+  color: var(--color-ink);
+}
+.chip--on .chip-check {
+  width: 1em;
+}
+.check {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  color: rgb(var(--fg) / 0.9);
+  cursor: pointer;
+}
+.check input {
+  flex: none;
+  margin-top: 0.15rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  accent-color: var(--color-mint);
+}
+
+.share-btn {
+  display: inline-flex;
+  height: 3.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgb(var(--fg) / 0.22);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: rgb(var(--fg) / 0.92);
+  transition:
+    border-color 0.2s,
+    background-color 0.2s,
+    transform 0.2s;
+}
+.share-btn:hover {
+  border-color: rgb(var(--fg) / 0.5);
+}
+.share-btn:active {
+  transform: scale(0.97);
+}
+.share-btn--primary {
+  background: var(--color-tap);
+  border-color: var(--color-tap);
+  color: var(--color-ink);
+}
+
 /* 제목 단어별 흐림 → 선명 */
 .blur-word {
   display: inline-block;

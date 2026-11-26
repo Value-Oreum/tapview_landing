@@ -88,16 +88,18 @@ export default function Dog({
     return () => ctx.revert();
   }, [motion, delay]);
 
+  // 위치·크기는 바깥 상자(className)가, 움직임은 안쪽 그림이 맡는다 (GSAP transform이 배치용 translate를 덮지 않게)
   return (
-    <img
-      ref={ref}
-      src={`/dog/dog-${pose}.webp`}
-      alt={decorative ? "" : ALT[pose]}
-      aria-hidden={decorative || undefined}
-      width={512}
-      height={512}
-      draggable={false}
-      className={`pointer-events-none select-none ${className}`}
-    />
+    <span className={`pointer-events-none block select-none ${className}`} aria-hidden={decorative || undefined}>
+      <img
+        ref={ref}
+        src={`/dog/dog-${pose}.webp`}
+        alt={decorative ? "" : ALT[pose]}
+        width={512}
+        height={512}
+        draggable={false}
+        className="h-full w-full"
+      />
+    </span>
   );
 }
