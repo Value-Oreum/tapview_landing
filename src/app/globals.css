@@ -82,8 +82,9 @@ body {
    --cw: 폰 무대(cover) 너비. 렌즈(원)는 사진 속 폰 화면 너비(20.7%)와 같은 지름으로, 늘 화면 정중앙에 온다 */
 .hero {
   --cw: max(100vw, calc(100svh * 2720 / 1536));
-  --lens: calc(var(--cw) * 0.205);
-  --fs: min(calc(var(--cw) * 0.088), 17svh);
+  /* 렌즈는 폰 화면 너비와 같되, 낮은 화면에서는 아래 문구와 띄우려고 높이의 34%까지만 */
+  --lens: min(calc(var(--cw) * 0.205), 34svh);
+  --fs: min(calc(var(--cw) * 0.088), 15svh);
   position: relative;
   height: 100vh;
   height: 100svh;
@@ -139,7 +140,7 @@ body {
 .hero-dog {
   position: absolute;
   left: var(--dog-x, 50%);
-  top: var(--dog-y, 44%);
+  top: var(--dog-y, 39%);
   width: calc(var(--lens) * 1.18);
   aspect-ratio: 1;
   transform: translate(-50%, -52%);
@@ -186,14 +187,14 @@ html[data-motion="reduce"] .hero-dog .dog-final {
 }
 .stage--sharp {
   /* JS가 렌즈 위치로 자른다. JS가 없으면 기본은 가운데 원 */
-  clip-path: circle(calc(var(--lens) / 2) at 50% 44%);
+  clip-path: circle(calc(var(--lens) / 2) at 50% 39%);
   will-change: clip-path;
 }
 /* 렌즈 안쪽: 살짝 확대 + 초점 맞추기(흐림 → 선명) */
 .lens-zoom {
   position: absolute;
   inset: 0;
-  transform-origin: var(--dog-x, 50%) var(--dog-y, 44%);
+  transform-origin: var(--dog-x, 50%) var(--dog-y, 39%);
   transform: scale(var(--zoom, 1.06));
 }
 @media (max-width: 720px) {
@@ -216,7 +217,7 @@ html[data-motion="reduce"] .hero-dog .dog-final {
   --gap: calc(var(--fs) * 0.1);
   position: absolute;
   inset-inline: 0;
-  top: 44%;
+  top: 39%;
   transform: translateY(-50%);
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -426,5 +427,32 @@ select.field option {
 @media (prefers-reduced-motion: reduce) {
   .blur-word {
     will-change: auto;
+  }
+}
+
+/* ───────── 로드맵 지도 핀 ───────── */
+.map-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: map-pulse 2.6s ease-out infinite;
+}
+@keyframes map-pulse {
+  from {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(4.2);
+    opacity: 0;
+  }
+}
+html[data-motion="reduce"] .map-pulse {
+  animation: none;
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-pulse {
+    animation: none;
+    opacity: 0;
   }
 }

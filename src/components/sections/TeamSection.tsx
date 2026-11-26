@@ -12,8 +12,8 @@ const TEAM = [
   {
     role: "개발",
     line: "현장에서 나온 불편을,\n가장 빠르게 화면으로.",
-    career: "앱 개발 · AX 프로덕트 빌더",
-    does: "AI로 빠르게 만들고, 안드로이드 앱으로 완성합니다.",
+    career: "AX 프로덕트 빌더 · 일본 IT 개발·사업PM 15년",
+    does: "AI로 빠르게 만들어 안드로이드 앱으로 완성하고, 일본 빌드·현지화까지 맡습니다.",
   },
   {
     role: "그로스",
@@ -22,10 +22,10 @@ const TEAM = [
     does: "실제 활성 지표를 보며 탭뷰어를 눈덩이처럼 늘립니다.",
   },
   {
-    role: "일본 사업",
-    line: "다음 화면은,\n일본입니다.",
-    career: "일본 IT 개발·사업PM 15년",
-    does: "일본 빌드·현지화와 현지 제휴를 맡습니다.",
+    role: "사업 확대",
+    line: "좋은 화면은,\n국경을 넘습니다.",
+    career: "IT 소프트웨어 유통·제휴 20년 · 일본 현지 사업",
+    does: "20년 IT 소프트웨어 유통과 제휴 확대 경험, 일본 현지 사업 경력 전문가가 함께합니다.",
   },
 ];
 
@@ -57,6 +57,13 @@ export default function TeamSection() {
           ))}
         </ul>
         </div>
+        <ScrollFocusText
+          as="p"
+          text={"꼭 필요한 기능만 담아 누구나 쓰기 좋게 만들고,\n한국의 선명함을 세계로 수출하겠습니다."}
+          start="top 90%"
+          end="top 60%"
+          className="mx-auto mt-24 max-w-[22ch] text-center text-[clamp(1.625rem,3.4vw,2.75rem)] leading-[1.3] font-semibold tracking-[-0.03em] text-paper sm:max-w-none"
+        />
       </div>
     </section>
   );

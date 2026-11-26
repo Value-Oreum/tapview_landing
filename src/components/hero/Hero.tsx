@@ -138,13 +138,13 @@ export default function Hero() {
       gsap.set(lockup, { "--gap": `${fs * 0.04}px` });
       gsap.set(line, { opacity: 0 });
       gsap.set(lens, { "--glare": 0 });
-      gsap.set(zoom, { filter: "blur(14px)", "--zoom": 1 });
+      gsap.set(zoom, { filter: "blur(18px)", "--zoom": 1 });
       gsap.set(words, { filter: "blur(16px)", opacity: 0.12, y: "0.12em" });
       gsap.set(rises, { opacity: 0, y: 28 });
       if (header) gsap.set(header, { yPercent: -140, opacity: 0 });
 
       const tl = gsap.timeline({
-        delay: 0.3,
+        delay: 0.5,
         onComplete: () => {
           lens.style.width = "";
           lens.style.height = "";
@@ -155,23 +155,24 @@ export default function Hero() {
         },
       });
 
-      // ① 가는 선이 그어지고 → 부드럽게 둥근 렌즈로 (약 1.7초)
-      tl.to(line, { opacity: 1, duration: 0.2 }, 0)
-        .to(st, { h: D * 0.55, duration: 0.45, ease: "power2.out", onUpdate: apply }, 0)
-        .to(st, { w: D, h: D, duration: 1.3, ease: "power3.inOut", onUpdate: apply }, 0.4)
-        .to(line, { opacity: 0, duration: 0.55, ease: "power1.out" }, 0.45)
-        .to(lockup, { "--gap": `${fs * 0.12}px`, duration: 1.4, ease: "power3.inOut" }, 0.35)
-        // ② 렌즈 안에서 초점이 맞는다: 흐림 → 선명, 살짝 확대
-        .to(zoom, { filter: "blur(0px)", "--zoom": 1.06, duration: 1.6, ease: "power2.inOut" }, 0.7)
-        .to(lens, { "--glare": 1, duration: 0.9, ease: "power1.out" }, 1.2);
+      // ① 숨을 고르듯 천천히 가는 선이 그어지고 → 잠깐 멈춘 뒤 → 부드럽게 둥근 렌즈로 (약 3초)
+      tl.to(line, { opacity: 1, duration: 0.5, ease: "sine.out" }, 0)
+        .to(st, { h: D * 0.6, duration: 0.9, ease: "sine.inOut", onUpdate: apply }, 0)
+        .to(st, { w: D, h: D, duration: 2.0, ease: "power2.inOut", onUpdate: apply }, 1.15)
+        .to(line, { opacity: 0, duration: 0.9, ease: "sine.inOut" }, 1.25)
+        .to(lockup, { "--gap": `${fs * 0.12}px`, duration: 2.0, ease: "power2.inOut" }, 1.1)
+        // ② 렌즈 안에서 천천히 초점이 맞는다: 흐림 → 선명, 살짝 확대
+        .to(zoom, { filter: "blur(0px)", "--zoom": 1.06, duration: 2.5, ease: "sine.inOut" }, 1.35)
+        .to(lens, { "--glare": 1, duration: 1.0, ease: "sine.out" }, 2.5);
 
-      // ③ 강아지: 자는 장면에서 시작하는 영상 → 초점이 맞을 즈음 깨어나 벌떡, 손 흔들기
-      tl.add(() => playDog(ANIM.wake), 0.35).add(() => playDog(ANIM.wave), 0.35 + WAKE_SEC);
+      // ③ 강아지: 자는 장면에서 시작하는 영상 → 초점이 다 맞은 뒤 깨어나 벌떡, 손 흔들기
+      const DOG_AT = 1.9;
+      tl.add(() => playDog(ANIM.wake), DOG_AT).add(() => playDog(ANIM.wave), DOG_AT + WAKE_SEC);
 
       // ④ 화면 UI
-      if (header) tl.to(header, { yPercent: 0, opacity: 1, duration: 0.9, ease: "expo.out" }, 1.7);
-      tl.to(words, { filter: "blur(0px)", opacity: 1, y: 0, duration: 1.15, stagger: 0.16, ease: "power3.out" }, 2.2);
-      tl.to(rises, { opacity: 1, y: 0, duration: 0.9, stagger: 0.1, ease: "expo.out" }, 2.6);
+      if (header) tl.to(header, { yPercent: 0, opacity: 1, duration: 0.9, ease: "expo.out" }, 2.6);
+      tl.to(words, { filter: "blur(0px)", opacity: 1, y: 0, duration: 1.2, stagger: 0.18, ease: "power3.out" }, 3.3);
+      tl.to(rises, { opacity: 1, y: 0, duration: 0.9, stagger: 0.1, ease: "expo.out" }, 3.7);
 
       // 점검용: ?slow=1 이면 5배 느리게 재생 (강아지 영상 속도는 그대로)
       if (new URLSearchParams(location.search).has("slow")) tl.timeScale(0.2);
@@ -256,8 +257,7 @@ export default function Hero() {
               ))}
             </h1>
             <p data-rise className="mt-3 text-[clamp(1.0625rem,1.3vw,1.25rem)] leading-[1.55] text-paper/78">
-              두세 번 탭하면, 내 눈에 맞는 화면.
-              <span className="hidden sm:inline"> 돋보기 없이, 원래 화면 그대로.</span>
+              두세 번 탭하면, 내 눈에 맞는 스마트한 화면.
             </p>
           </div>
           <div data-rise className="flex flex-wrap items-center gap-3">
@@ -273,10 +273,17 @@ export default function Hero() {
               </span>
             </a>
             <a
-              href="#story"
-              className="glass hidden h-14 items-center rounded-full px-6 text-[1.0625rem] font-semibold text-paper/90 transition-colors hover:text-paper sm:inline-flex"
+              href="#film-player"
+              data-offset="96"
+              onClick={() => window.dispatchEvent(new CustomEvent("tv:play-film"))}
+              className="glass inline-flex h-14 items-center gap-3 rounded-full pr-6 pl-2 text-[1.0625rem] font-semibold text-paper/90 transition-colors hover:text-paper"
             >
-              브랜드 스토리
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-paper/15" aria-hidden>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" />
+                </svg>
+              </span>
+              소개 영상 보기
             </a>
           </div>
         </div>

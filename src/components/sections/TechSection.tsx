@@ -36,10 +36,6 @@ const DETAILS = [
     q: "지금 어디까지 만들었나요?",
     a: "최종 화면 디자인 45개를 확정했고(2026.11.17), 안드로이드 앱을 개발해 내부 테스트 중입니다. 초기 개발을 마치면 바로 구글 플레이·갤럭시 스토어에 등록합니다.",
   },
-  {
-    q: "특허가 있나요?",
-    a: "비교 화면에 대한 선택으로 화면 표시 설정을 만들고 사용 상황에 따라 적용하는 방법을 특허 출원했습니다(2026.11.26, 출원번호 10-2026-0240614).",
-  },
 ];
 
 export default function TechSection() {
@@ -66,6 +62,38 @@ export default function TechSection() {
               )}
             </li>
           ))}
+        </Reveal>
+
+        <Reveal className="mt-6">
+          <div
+            data-reveal
+            className="flex flex-col gap-6 rounded-[28px] border border-mint/30 bg-gradient-to-r from-forest/60 via-forest/20 to-transparent p-8 sm:flex-row sm:items-end sm:justify-between sm:p-10"
+          >
+            <div className="max-w-[40rem]">
+              <p className="inline-flex items-center gap-2 rounded-full bg-mint/15 px-3.5 py-1.5 text-[0.9375rem] font-semibold text-mint">
+                <span aria-hidden className="h-2 w-2 rounded-full bg-mint" />
+                특허 출원 중
+              </p>
+              <p className="mt-4 text-[clamp(1.375rem,2.4vw,1.875rem)] leading-[1.3] font-semibold tracking-[-0.02em] text-paper">
+                비교해서 고르면 내 화면이 되는 방법,
+                <br />
+                특허로 출원했습니다.
+              </p>
+              <p className="mt-3 text-[1.0625rem] leading-[1.65] text-paper/70">
+                비교 화면에서 고른 결과로 화면 표시 설정을 만들고, 사용 상황에 맞춰 적용하는 방법입니다.
+              </p>
+            </div>
+            <dl className="shrink-0 text-[0.9375rem] leading-[1.7] text-paper/60 tabular-nums">
+              <div className="flex gap-3">
+                <dt>출원번호</dt>
+                <dd className="font-semibold text-paper/85">10-2026-0240614</dd>
+              </div>
+              <div className="flex gap-3">
+                <dt>출원일</dt>
+                <dd className="font-semibold text-paper/85">2026. 11. 26.</dd>
+              </div>
+            </dl>
+          </div>
         </Reveal>
 
         <div className="mt-14 divide-y divide-paper/10 border-y border-paper/10">

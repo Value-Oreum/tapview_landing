@@ -23,7 +23,15 @@ export default function SiteFooter() {
           <a href="/privacy" className="font-semibold text-paper/85 hover:text-paper">개인정보처리방침</a>
         </nav>
       </div>
-      <p className="mx-auto mt-10 max-w-[1240px] text-[0.8125rem] text-paper/35">© 2026 TapView. 탭뷰는 의료기기가 아닌 화면 읽기 보조 앱입니다.</p>
+      <div className="mx-auto mt-10 max-w-[1240px] space-y-1.5 border-t border-paper/10 pt-6 text-[0.8125rem] leading-[1.7] text-paper/40">
+        <p>특허 출원 중 · 출원번호 10-2026-0240614 (2026. 11. 26.)</p>
+        <p>탭뷰는 의료기기가 아닌 화면 읽기 보조 앱입니다.</p>
+        <p>
+          이 사이트의 글, 디자인, 이미지, 캐릭터, 영상의 저작권은 탭뷰 팀에 있습니다. 허락 없이 복제·배포·변형하거나 다른 곳에
+          쓸 수 없습니다.
+        </p>
+        <p className="text-paper/55">© 2026 탭뷰 TapView. All rights reserved.</p>
+      </div>
     </footer>
   );
 }

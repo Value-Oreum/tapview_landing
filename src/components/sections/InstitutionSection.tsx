@@ -2,12 +2,18 @@ import SectionHead from "./SectionHead";
 import Reveal from "@/components/motion/Reveal";
 import Dog from "@/components/Dog";
 
-const CLASS_STEPS = ["강사 QR로 설치", "7일 무료 체험 시작", "편한 그림 2~3번 탭", "내 화면 완성"];
+const CLASS_STEPS = ["강사 QR로 설치", "3개월 무료 체험 시작", "편한 그림 2~3번 탭", "내 화면 완성"];
 
 const FEATURES = [
-  { t: "단계별 현황", d: "참여 신청부터 설치, 내 화면 완성, 7일 뒤 다시 사용까지 한 화면에서 봅니다." },
-  { t: "도움이 필요한 분만", d: "막힌 분만 추려 보여 줘서, 사회복지사 한 사람이 많은 분을 챙길 수 있습니다." },
-  { t: "수업과 실적", d: "강사 화면의 QR·진행 안내, 기관 이용권 발급, 복지관 사업 실적 양식에 맞춘 이용 리포트." },
+  {
+    t: "누가 어디까지 했는지 한눈에",
+    d: "어르신마다 설치를 마쳤는지, 내 화면을 완성했는지, 일주일 뒤에도 잘 쓰고 계신지 한 화면에서 확인합니다.",
+  },
+  { t: "도움이 필요한 분만 골라서", d: "설치나 설정에서 막힌 분만 따로 보여 드려서, 사회복지사 한 사람이 많은 분을 챙길 수 있습니다." },
+  {
+    t: "수업 진행과 실적 보고까지",
+    d: "수업 때 강사 화면에 QR과 진행 순서를 띄우고, 복지관 사업 실적 보고에 바로 쓰는 이용 리포트를 만들어 드립니다.",
+  },
 ];
 
 const REGIONS = ["성남", "대구", "충남권"];
@@ -35,7 +41,7 @@ export default function InstitutionSection() {
         <div className="mt-20 grid gap-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16">
           <Reveal>
             <h3 data-reveal className="text-[clamp(1.5rem,2.6vw,2.25rem)] font-semibold tracking-[-0.03em] text-paper">
-              복지관 전용 화면
+              복지관 전용 관리자 화면을 제공해 드립니다.
             </h3>
             <ul className="mt-8 grid gap-6">
               {FEATURES.map((f) => (

@@ -8,18 +8,21 @@ import { prefersReducedMotion } from "@/components/providers/PrefsProvider";
 
 gsap.registerPlugin(ScrollTrigger);
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+const PORTRAIT = "(max-width: 767px) and (orientation: portrait)";
 
 /** 홍보영상 (72초). 화면에 들어오면 알약 창이 넓어지며 영상 카드가 열린다. 재생은 사용자가 누를 때 소리와 함께. */
 export default function FilmSection() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const clipRef = useRef<gsap.core.Tween | null>(null);
   const [playing, setPlaying] = useState(false);
+  const [started, setStarted] = useState(false);
 
   useIsoLayoutEffect(() => {
     const wrap = wrapRef.current!;
     if (prefersReducedMotion()) return;
     const ctx = gsap.context(() => {
-      gsap.fromTo(
+      clipRef.current = gsap.fromTo(
         wrap,
         { clipPath: "inset(32% 30% 32% 30% round 999px)" },
         {
@@ -32,13 +35,28 @@ export default function FilmSection() {
     return () => ctx.revert();
   }, []);
 
+  useEffect(() => {
+    const on = () => setTimeout(() => play(), 700);
+    window.addEventListener("tv:play-film", on);
+    return () => window.removeEventListener("tv:play-film", on);
+  });
+
   const play = () => {
     const v = videoRef.current;
     if (!v) return;
+    // 알약 창이 덜 열린 채 재생되지 않게, 재생하면 바로 다 연다
+    const clip = clipRef.current;
+    if (clip) {
+      clip.scrollTrigger?.kill();
+      clip.kill();
+      clipRef.current = null;
+      if (wrapRef.current) gsap.to(wrapRef.current, { clipPath: "inset(0% 0% 0% 0% round 28px)", duration: 0.6, ease: "power2.out" });
+    }
     v.controls = true;
     v.muted = false;
     void v.play();
     setPlaying(true);
+    setStarted(true);
   };
 
   return (
@@ -59,20 +77,38 @@ export default function FilmSection() {
 
         <div className="relative mt-10">
         <DogClip clip="headspin" className="absolute -top-28 right-2 z-10 h-36 w-36 sm:-top-36 sm:-right-6 sm:h-44 sm:w-44" />
-        <div ref={wrapRef} className="relative aspect-video overflow-hidden rounded-[28px] bg-ink-2">
+        {/* 세로로 든 휴대폰은 9:16 세로판, 나머지는 16:9 가로판 */}
+        <div
+          ref={wrapRef}
+          id="film-player"
+          className="relative mx-auto aspect-video overflow-hidden rounded-[28px] bg-ink-2 max-md:portrait:aspect-[9/16]"
+        >
           <video
             ref={videoRef}
             className="h-full w-full object-cover"
-            poster="/film/poster.webp"
             preload="none"
             playsInline
             onEnded={() => setPlaying(false)}
             onPause={() => setPlaying(false)}
             onPlay={() => setPlaying(true)}
           >
-            <source src="/film/tapview-film-1080.mp4" type="video/mp4" media="(min-width: 1024px)" />
-            <source src="/film/tapview-film-720.mp4" type="video/mp4" />
+            <source src="/film/tapview-film-v2-916-720.mp4" type="video/mp4" media={PORTRAIT} />
+            <source src="/film/tapview-film-v2-1080.mp4" type="video/mp4" media="(min-width: 1024px)" />
+            <source src="/film/tapview-film-v2-720.mp4" type="video/mp4" />
           </video>
+          {!started && (
+            <picture>
+              <source srcSet="/film/poster-v2-916.webp" media={PORTRAIT} />
+              <img
+                src="/film/poster-v2.webp"
+                alt=""
+                width={1600}
+                height={900}
+                loading="lazy"
+                className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+              />
+            </picture>
+          )}
           {!playing && (
             <button
               type="button"

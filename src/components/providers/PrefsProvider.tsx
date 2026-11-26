@@ -110,7 +110,7 @@ export default function PrefsProvider({ children }: { children: React.ReactNode 
       const el = document.querySelector(id);
       if (!el) return;
       e.preventDefault();
-      lenis.scrollTo(el as HTMLElement, { offset: 0 });
+      lenis.scrollTo(el as HTMLElement, { offset: -Number(a.dataset.offset ?? 0) });
       history.replaceState(null, "", id);
     };
     document.addEventListener("click", onClick);
