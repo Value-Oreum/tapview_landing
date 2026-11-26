@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { usePrefs } from "@/components/providers/PrefsProvider";
 
 const LINKS = [
-  { href: "#story", label: "이야기" },
+  { href: "#story", label: "브랜드 스토리" },
   { href: "#service", label: "서비스" },
   { href: "#tech", label: "기술" },
   { href: "#institution", label: "기관" },
