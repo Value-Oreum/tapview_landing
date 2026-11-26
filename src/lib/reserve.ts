@@ -11,7 +11,11 @@ export const TYPE_LABEL: Record<SubmitType, string> = {
   japan: "일본알림",
 };
 
-const PHONE = /^01[016789]-?\d{3,4}-?\d{4}$/;
+/** 휴대폰(숫자만): 010·011·016~019 */
+const MOBILE = /^01[016789]\d{7,8}$/;
+/** 기관 연락처(숫자만): 휴대폰 또는 지역번호 일반 전화 */
+const ANY_PHONE = /^0\d{8,10}$/;
+const digits = (v: unknown) => (typeof v === "string" ? v.replace(/\D/g, "") : "");
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 type Data = Record<string, unknown>;
@@ -43,8 +47,11 @@ export function clean(type: SubmitType, d: Data): { ok: true; data: Data } | { o
       need("email", "이메일", 120);
       if (!EMAIL.test(out.email as string)) throw new Error("이메일 주소를 다시 확인해 주세요.");
       if (type !== "contact") {
-        need("phone", "휴대폰 번호", 20);
-        if (!PHONE.test(out.phone as string)) throw new Error("휴대폰 번호를 다시 확인해 주세요. (예: 010-1234-5678)");
+        const phone = digits(d.phone);
+        if (!phone) throw new Error(type === "org" ? "연락처를 입력해 주세요." : "휴대폰 번호를 입력해 주세요.");
+        if (!(type === "org" ? ANY_PHONE : MOBILE).test(phone))
+          throw new Error(type === "org" ? "연락처를 숫자만 다시 확인해 주세요. (예: 0212345678)" : "휴대폰 번호를 숫자만 다시 확인해 주세요. (예: 01012345678)");
+        out.phone = phone;
       } else {
         opt("phone", 20);
       }

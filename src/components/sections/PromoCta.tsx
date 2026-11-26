@@ -1,6 +1,8 @@
 import Dog from "@/components/Dog";
 import ScrollFocusText from "@/components/motion/ScrollFocusText";
 import Reveal from "@/components/motion/Reveal";
+import CoffeeIcon from "@/components/CoffeeIcon";
+import { COFFEE_GOAL, COFFEE_PRIZE } from "@/lib/event";
 
 /** 마지막 CTA — '첫눈에 탭!' 혜택 두 가지 */
 export default function PromoCta() {
@@ -64,6 +66,13 @@ export default function PromoCta() {
             </div>
           </article>
         </Reveal>
+        <div className="mx-auto mt-6 flex max-w-[52rem] items-center gap-5 rounded-[28px] border border-tap/40 bg-tap/[0.07] px-6 py-5 sm:px-8">
+          <CoffeeIcon className="h-16 w-auto shrink-0" />
+          <p className="text-[1.0625rem] leading-[1.55] text-paper/85">
+            <b className="text-tap">친구 초대 이벤트</b> · 첫 눈도장을 찍으면 받는 <b className="text-paper">내 링크로 {COFFEE_GOAL}명</b>이 함께
+            찍으면, <b className="text-paper">{COFFEE_PRIZE}</b>을 보내 드려요.
+          </p>
+        </div>
         <p className="mt-8 text-center text-[0.9375rem] leading-[1.7] text-paper/50">
           평생 눈도장은 체험단으로 선발되어 정해진 기간 동안 사용하고 의견을 마친 탭뷰어가 대상입니다. 혜택은 출시 때 신청하신 이메일과 문자로 안내합니다.
         </p>

@@ -49,7 +49,8 @@ export default function PrefsProvider({ children }: { children: React.ReactNode 
     try {
       const q = new URLSearchParams(location.search);
       const ref = q.get("ref");
-      if (ref && /^TV-[A-Z0-9]{4}$/.test(ref)) sessionStorage.setItem("tv-ref", ref);
+      // 초대 링크는 나중에 다시 와서 신청해도 인정되게 30일 동안 기억한다
+      if (ref && /^TV-[A-Z0-9]{4}$/.test(ref)) localStorage.setItem("tv-ref", JSON.stringify({ ref, at: Date.now() }));
       const utm = ["utm_source", "utm_medium", "utm_campaign"].map((k) => q.get(k)).filter(Boolean).join("/");
       if (utm) sessionStorage.setItem("tv-utm", utm);
     } catch {}

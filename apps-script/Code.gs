@@ -18,11 +18,15 @@ const TABS = {
   japan: { name: '일본알림', head: ['접수시각', '이름', '이메일', '유형', '메모', '소식수신', '유입'] },
 };
 const EXTRA = {
-  invite: { name: '초대현황', head: ['초대코드', '초대수', '최근'] },
+  invite: { name: '초대현황', head: ['초대코드', '유효 초대수', '최근 초대', '초대한 사람', '휴대폰', '이메일', '커피 대상', '달성일', '지급완료', '지급일', '메모'] },
   queue: { name: '발송대기', head: ['접수시각', '받는사람', '유형', '코드', '체험단', '상태', '이유'] },
   news: { name: '소식', head: ['제목', '본문(HTML 가능)', '메모'] },
   newsLog: { name: '발송기록', head: ['발송시각', '받는사람', '제목'] },
 };
+
+/** 친구 초대 이벤트: 내 링크로 이만큼 첫 눈도장을 찍으면 메가커피 아메리카노 1잔 */
+const COFFEE_GOAL = 3;
+const INV = { code: 1, count: 2, last: 3, name: 4, phone: 5, email: 6, coffee: 7, reached: 8, paid: 9, paidAt: 10, memo: 11 };
 
 /* ───────── 설치 ───────── */
 function setup() {
@@ -36,6 +40,10 @@ function setup() {
       sh.getRange(1, 1, 1, t.head.length).setFontWeight('bold').setBackground('#e7f6ee');
     }
   });
+  // 예전 '초대현황'(3칸) 머리줄을 새 머리줄로 바꾸고, 지급완료 칸을 체크박스로
+  const inv = ss.getSheetByName(EXTRA.invite.name);
+  inv.getRange(1, 1, 1, EXTRA.invite.head.length).setValues([EXTRA.invite.head]).setFontWeight('bold').setBackground('#e7f6ee');
+  inv.getRange(2, INV.paid, 998, 1).insertCheckboxes();
   const news = ss.getSheetByName(EXTRA.news.name);
   if (news.getLastRow() === 1) news.appendRow(['[탭뷰] 개발 소식', '<p>안녕하세요, 탭뷰입니다.</p><p>여기에 소식을 적어 주세요.</p>', 'A2·B2 칸을 고친 뒤 메뉴 ▸ 탭뷰 ▸ 개발 소식 보내기']);
   const first = ss.getSheetByName('시트1') || ss.getSheetByName('Sheet1');
@@ -55,6 +63,11 @@ function onOpen() {
     .createMenu('탭뷰')
     .addItem('개발 소식 보내기 (소식 탭)', 'sendNews')
     .addItem('발송 대기열 지금 처리', 'processQueue')
+    .addSeparator()
+    .addItem('☕ 커피 이벤트 대상 보기 (미지급)', 'showCoffee')
+    .addItem('초대 수 다시 세기 (테스트 줄 지운 뒤)', 'recountInvites')
+    .addItem('필터 풀기', 'clearInviteFilter')
+    .addSeparator()
     .addItem('설치 점검', 'setup')
     .addToUi();
 }
@@ -73,6 +86,17 @@ function doPost(e) {
     const now = new Date();
     const yn = (v) => (v ? 'Y' : '');
     const joinList = (v) => (Array.isArray(v) ? v.join(', ') : '');
+    const person = req.type === 'personal' || req.type === 'family';
+    if (person) {
+      // 같은 휴대폰 번호로 이미 찍었으면 새 코드를 만들지 않고 기존 코드(=같은 내 링크)로 안내
+      const found = findPerson_(phoneKey_(d.phone));
+      if (found) {
+        try { notifyOperator_(Object.assign({}, req, { code: found.code }), d, '중복 신청 — 기존 코드로 안내'); } catch (err) {}
+        return json_({ ok: true, code: found.code, dup: true });
+      }
+    }
+    // 휴대폰은 숫자만, 맨 앞 0이 사라지지 않게 글자로 저장
+    if (d.phone) d.phone = "'" + phoneKey_(d.phone);
     let row;
     switch (req.type) {
       case 'personal':
@@ -94,7 +118,9 @@ function doPost(e) {
     // 수식으로 해석되지 않게 '=' '+' '-' '@'로 시작하는 글자는 앞에 ' 를 붙인다
     row = row.map((v) => (typeof v === 'string' && /^[=+\-@]/.test(v) ? "'" + v : v == null ? '' : v));
     SpreadsheetApp.getActive().getSheetByName(tab.name).appendRow(row);
-    if (req.ref) bumpInvite_(req.ref, now);
+    if (person && req.ref) {
+      try { updateInvite_(req.ref, now, false); } catch (err) { Logger.log('invite: ' + err); }
+    }
 
     try { notifyOperator_(req, d); } catch (err) { Logger.log('operator mail: ' + err); }
     try {
@@ -103,7 +129,7 @@ function doPost(e) {
     } catch (err) {
       queue_(now, d.email, req.type, req.code, d.beta, String(err));
     }
-    return json_({ ok: true });
+    return json_({ ok: true, code: req.code || '' });
   } catch (err) {
     return json_({ ok: false, error: String(err) });
   } finally {
@@ -115,13 +141,20 @@ function doGet(e) {
   const P = PropertiesService.getScriptProperties();
   const key = e && e.parameter && e.parameter.check;
   if (!key || key !== P.getProperty('SECRET')) return json_({ ok: true, service: 'tapview-intake' });
+  // 내 링크 진행도 (사이트 완료 화면이 서버를 거쳐 물어본다): 숫자만 돌려준다
+  const ask = e.parameter.invite;
+  if (ask) {
+    const r = findInviteRow_(String(ask).trim());
+    const count = r ? Number(r.values[INV.count - 1]) || 0 : 0;
+    return json_({ ok: true, count: count, goal: COFFEE_GOAL, reached: count >= COFFEE_GOAL });
+  }
   // 설정 점검 (비밀 키를 아는 사람만): 값 자체는 돌려주지 않는다
   const props = P.getProperties();
   const q = SpreadsheetApp.getActive().getSheetByName(EXTRA.queue.name);
   const pending = q && q.getLastRow() > 1 ? q.getRange(2, 6, q.getLastRow() - 1, 2).getValues().filter((r) => r[0] === '대기') : [];
   return json_({
     ok: true,
-    version: 3,
+    version: 4,
     props: Object.keys(props).filter((k) => k !== 'SECRET'),
     fromAlias: props.FROM_ALIAS || '',
     aliases: GmailApp.getAliases(),
@@ -135,18 +168,150 @@ function json_(o) {
   return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON);
 }
 
-function bumpInvite_(code, now) {
+/* ───────── 친구 초대 이벤트 ───────── */
+
+/** 휴대폰 번호 비교용 키: 숫자만, 시트가 지운 맨 앞 0 되살리기 */
+function phoneKey_(v) {
+  let n = String(v == null ? '' : v).replace(/\D/g, '');
+  if (n.length === 10 && n.charAt(0) === '1') n = '0' + n;
+  return n;
+}
+
+/** 개인·가족 탭의 신청자 목록 (머리줄 이름으로 칸을 찾는다) */
+function people_() {
+  const ss = SpreadsheetApp.getActive();
+  const out = [];
+  [TABS.personal.name, TABS.family.name].forEach((name) => {
+    const sh = ss.getSheetByName(name);
+    if (!sh || sh.getLastRow() < 2) return;
+    const v = sh.getDataRange().getValues();
+    const h = v[0];
+    const col = (label) => h.indexOf(label);
+    const cCode = col('코드'), cName = Math.max(col('이름'), col('신청자')), cPhone = col('휴대폰'), cMail = col('이메일'), cRef = col('초대코드');
+    for (let i = 1; i < v.length; i++) {
+      if (!v[i][cCode]) continue;
+      out.push({ code: String(v[i][cCode]).trim(), name: v[i][cName], phone: phoneKey_(v[i][cPhone]), email: v[i][cMail], ref: String(v[i][cRef] || '').trim() });
+    }
+  });
+  return out;
+}
+
+function findPerson_(phone) {
+  if (!phone) return null;
+  const list = people_();
+  for (let i = 0; i < list.length; i++) if (list[i].phone === phone) return list[i];
+  return null;
+}
+
+function findInviteRow_(code) {
   const sh = SpreadsheetApp.getActive().getSheetByName(EXTRA.invite.name);
-  const vals = sh.getRange(1, 1, Math.max(sh.getLastRow(), 1), 1).getValues();
-  for (let i = 1; i < vals.length; i++) {
-    if (vals[i][0] === code) {
-      const c = sh.getRange(i + 1, 2);
-      c.setValue((Number(c.getValue()) || 0) + 1);
-      sh.getRange(i + 1, 3).setValue(now);
-      return;
+  const last = sh.getLastRow();
+  if (last < 2) return null;
+  const v = sh.getRange(2, 1, last - 1, EXTRA.invite.head.length).getValues();
+  for (let i = 0; i < v.length; i++) if (String(v[i][0]).trim() === code) return { row: i + 2, values: v[i] };
+  return null;
+}
+
+/**
+ * 초대 코드 하나의 '유효 초대수'를 신청 기록에서 다시 센다.
+ * 인정: 등록된 코드 + 서로 다른 휴대폰 번호 + 초대한 사람 본인 번호가 아님.
+ * 목표(3명)에 닿으면 커피 대상 Y, 운영자·초대한 분께 메일.
+ */
+function updateInvite_(code, now, silent) {
+  const list = people_();
+  const inviter = list.filter((p) => p.code === code)[0];
+  const phones = {};
+  list.forEach((p) => {
+    if (p.ref === code && p.phone && (!inviter || p.phone !== inviter.phone)) phones[p.phone] = p.code;
+  });
+  const count = inviter ? Object.keys(phones).length : 0;
+  const sh = SpreadsheetApp.getActive().getSheetByName(EXTRA.invite.name);
+  let r = findInviteRow_(code);
+  if (!r) {
+    sh.appendRow([code, 0, now, '', '', '', '', '', false, '', '']);
+    r = findInviteRow_(code);
+  }
+  const at = (c) => sh.getRange(r.row, c);
+  at(INV.count).setValue(count);
+  if (now) at(INV.last).setValue(now);
+  if (inviter) {
+    at(INV.name).setValue(inviter.name || '');
+    at(INV.phone).setValue("'" + inviter.phone);
+    at(INV.email).setValue(inviter.email || '');
+    at(INV.memo).setValue('초대받은 코드: ' + Object.keys(phones).map((k) => phones[k]).join(', '));
+  } else {
+    at(INV.memo).setValue('등록되지 않은 코드로 온 신청 (인정 안 함)');
+  }
+  at(INV.paid).insertCheckboxes();
+  const already = String(r.values[INV.coffee - 1]) === 'Y';
+  if (inviter && count >= COFFEE_GOAL && !already) {
+    at(INV.coffee).setValue('Y');
+    at(INV.reached).setValue(now || new Date());
+    if (!silent) {
+      try { notifyCoffee_(inviter, count, phones); } catch (err) { Logger.log('coffee mail: ' + err); }
     }
   }
-  sh.appendRow([code, 1, now]);
+  return count;
+}
+
+function notifyCoffee_(inviter, count, phones) {
+  const P = PropertiesService.getScriptProperties();
+  const to = P.getProperty('OPERATOR_EMAIL');
+  if (to) {
+    MailApp.sendEmail(
+      to,
+      '[탭뷰] ☕ 커피 이벤트 달성 · ' + inviter.code + ' · ' + (inviter.name || ''),
+      [
+        '내 링크로 ' + count + '명이 첫 눈도장을 찍었습니다.',
+        '초대한 분: ' + (inviter.name || '') + ' / ' + inviter.phone + ' / ' + (inviter.email || ''),
+        '초대받은 코드: ' + Object.keys(phones).map((k) => phones[k]).join(', '),
+        '',
+        '할 일: 메가커피 아메리카노 모바일 쿠폰을 위 휴대폰 번호로 보내고, 시트 ▸ 초대현황 ▸ 지급완료를 체크해 주세요.',
+        '(메뉴 ▸ 탭뷰 ▸ 커피 이벤트 대상 보기로 미지급 대상만 볼 수 있습니다)',
+      ].join('\n'),
+    );
+  }
+  if (inviter.email) {
+    const inner =
+      '<p style="font-size:22px;font-weight:800;margin:0 0 12px;">' + (inviter.name ? esc_(inviter.name) + '님, ' : '') + '친구 초대 성공!</p>' +
+      '<p>내 링크로 <b>' + count + '명</b>이 첫 눈도장을 찍었어요. 약속한 <b>메가커피 아메리카노 1잔</b>을 확인 후 신청하신 휴대폰 번호로 보내 드릴게요.</p>' +
+      '<p>평생 눈도장 체험단에도 우선 선발 대상이 되셨습니다. 고맙습니다!</p>';
+    send_(inviter.email, '[탭뷰] 친구 초대 성공! 아메리카노 1잔을 보내 드려요', frame_(inner, 'ko'), '친구 초대 성공! 확인 후 메가커피 아메리카노 1잔을 보내 드릴게요.');
+  }
+}
+
+/** 메뉴: 테스트 줄을 지운 뒤 모든 초대 수를 다시 센다 (메일은 보내지 않음) */
+function recountInvites() {
+  const codes = {};
+  people_().forEach((p) => { if (p.ref) codes[p.ref] = true; });
+  const sh = SpreadsheetApp.getActive().getSheetByName(EXTRA.invite.name);
+  if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow() - 1, 1).getValues().forEach((r) => { if (r[0]) codes[String(r[0]).trim()] = true; });
+  Object.keys(codes).forEach((c) => updateInvite_(c, null, true));
+  try { SpreadsheetApp.getUi().alert('초대 수를 다시 셌습니다: ' + Object.keys(codes).length + '개 코드'); } catch (e) {}
+}
+
+/** 메뉴: 커피 대상(Y) 가운데 아직 지급하지 않은 줄만 보이게 */
+function showCoffee() {
+  const ss = SpreadsheetApp.getActive();
+  const sh = ss.getSheetByName(EXTRA.invite.name);
+  ss.setActiveSheet(sh);
+  if (sh.getFilter()) sh.getFilter().remove();
+  const range = sh.getRange(1, 1, Math.max(sh.getLastRow(), 2), EXTRA.invite.head.length);
+  const f = range.createFilter();
+  f.setColumnFilterCriteria(INV.coffee, SpreadsheetApp.newFilterCriteria().whenTextEqualTo('Y').build());
+  f.setColumnFilterCriteria(INV.paid, SpreadsheetApp.newFilterCriteria().setHiddenValues(['TRUE']).build());
+}
+
+function clearInviteFilter() {
+  const sh = SpreadsheetApp.getActive().getSheetByName(EXTRA.invite.name);
+  if (sh.getFilter()) sh.getFilter().remove();
+}
+
+/** 지급완료를 체크하면 지급일을 자동으로 적는다 */
+function onEdit(e) {
+  const sh = e.range.getSheet();
+  if (sh.getName() !== EXTRA.invite.name || e.range.getColumn() !== INV.paid || e.range.getRow() < 2) return;
+  sh.getRange(e.range.getRow(), INV.paidAt).setValue(e.range.getValue() === true ? new Date() : '');
 }
 
 function queue_(now, email, type, code, beta, reason) {
@@ -219,7 +384,7 @@ function sendWelcome_(type, to, code, beta, name) {
       '<div style="font-size:30px;font-weight:800;letter-spacing:1px;margin-top:4px;">' + code + '</div>' +
       '<div style="margin-top:8px;font-weight:700;color:#013f15;">출시 후 첫 1년 무료 · 본인+가족 2명</div></div>' +
       (beta ? '<p>체험단(평생 눈도장) 신청도 함께 받았습니다. 선발되시면 따로 연락드릴게요.</p>' : '') +
-      '<p>아래 내 링크로 <b>3명이 첫 눈도장을 찍으면</b> 평생 눈도장 체험단에 우선 선발됩니다.<br>' +
+      '<p>아래 내 링크로 <b>3명이 첫 눈도장을 찍으면 메가커피 아메리카노 1잔</b>을 보내 드리고, 평생 눈도장 체험단에도 우선 선발됩니다.<br>' +
       '<a href="' + invite + '" style="color:#013f15;font-weight:700;">' + invite + '</a></p>' +
       '<p style="color:#6b706c;">출시 소식과 혜택은 이 메일과 문자로 가장 먼저 알려 드릴게요. #첫눈에탭</p>';
     text = '첫 눈도장이 찍혔어요. 코드 ' + code + ' / 출시 후 첫 1년 무료(본인+가족 2명). 내 링크: ' + invite;
@@ -239,13 +404,17 @@ function sendWelcome_(type, to, code, beta, name) {
   send_(to, subject, frame_(inner, type === 'japan' ? 'ja' : 'ko'), text);
 }
 
-function notifyOperator_(req, d) {
+function notifyOperator_(req, d, note) {
   const to = PropertiesService.getScriptProperties().getProperty('OPERATOR_EMAIL');
   if (!to) return;
   const label = TABS[req.type].name;
   const who = req.type === 'org' ? d.org + ' · ' + d.name : d.name || d.email;
   const lines = Object.keys(d).map((k) => k + ': ' + (Array.isArray(d[k]) ? d[k].join(', ') : d[k]));
-  MailApp.sendEmail(to, '[탭뷰 신청] ' + label + ' · ' + who + (req.code ? ' · ' + req.code : ''), lines.join('\n') + (req.ref ? '\n초대코드: ' + req.ref : ''));
+  MailApp.sendEmail(
+    to,
+    '[탭뷰 신청] ' + (note ? '(' + note + ') ' : '') + label + ' · ' + who + (req.code ? ' · ' + req.code : ''),
+    lines.join('\n') + (req.ref ? '\n초대코드: ' + req.ref : ''),
+  );
 }
 
 function esc_(s) {

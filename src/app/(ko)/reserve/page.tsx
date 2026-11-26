@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { OG_IMAGE } from "@/lib/site";
+import CoffeeIcon from "@/components/CoffeeIcon";
+import { COFFEE_GOAL, COFFEE_PRIZE } from "@/lib/event";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ReserveForm from "@/components/reserve/ReserveForm";
@@ -31,8 +33,8 @@ const PERKS = [
     motion: "float" as const,
     tag: "체험단",
     name: "평생 눈도장",
-    big: "함께 만들면 평생 무료",
-    small: "선발 후 정해진 기간 사용·의견을 마친 분",
+    big: "출시 전에 먼저 써 보면 평생 무료",
+    small: "1~4주 사용하고 의견을 주시는 분 · 뽑힌 분께 문자로 연락",
   },
   {
     dog: "heart" as const,
@@ -81,6 +83,13 @@ export default function ReservePage() {
                   <p className="mt-1 text-[0.9375rem] text-paper/60">{p.small}</p>
                 </div>
               ))}
+              <div className="relative rounded-[30px] border border-tap/40 bg-tap/[0.07] p-7 pr-32">
+                <CoffeeIcon className="absolute top-1/2 right-8 h-24 w-auto -translate-y-1/2" />
+                <p className="text-[0.875rem] font-semibold text-tap">친구 초대 이벤트</p>
+                <p className="mt-1 text-[1.5rem] font-semibold tracking-[-0.02em] text-paper">내 링크로 {COFFEE_GOAL}명</p>
+                <p className="mt-3 text-[1.125rem] font-semibold text-paper">{COFFEE_PRIZE} 선물</p>
+                <p className="mt-1 text-[0.9375rem] text-paper/60">첫 눈도장을 찍으면 받는 내 링크로 초대해 주세요</p>
+              </div>
               <p className="px-2 text-[0.875rem] leading-[1.7] text-paper/45">
                 혜택은 출시 때 신청하신 이메일과 문자로 안내합니다. 가격은 연간 9,900원(7일 무료 체험)입니다.
               </p>

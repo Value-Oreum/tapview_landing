@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Dog from "@/components/Dog";
+import EmailField from "./EmailField";
 
 const TOPICS = ["일반 문의", "제휴·협력", "언론·취재", "복지관·기관"];
 
@@ -69,19 +70,19 @@ export default function ContactForm() {
           ))}
         </div>
       </fieldset>
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-5">
         <label className="block">
           <span className="mb-2 block text-[1.0625rem] font-semibold text-paper">
             이름 <span className="text-tap">*</span>
           </span>
           <input className="field" autoComplete="name" value={f.name || ""} onChange={set("name")} />
         </label>
-        <label className="block">
-          <span className="mb-2 block text-[1.0625rem] font-semibold text-paper">
+        <div>
+          <label htmlFor="contact-email" className="mb-2 block text-[1.0625rem] font-semibold text-paper">
             이메일 <span className="text-tap">*</span>
-          </span>
-          <input className="field" type="email" inputMode="email" autoComplete="email" value={f.email || ""} onChange={set("email")} />
-        </label>
+          </label>
+          <EmailField id="contact-email" value={f.email || ""} onChange={(v) => setF((p) => ({ ...p, email: v }))} />
+        </div>
       </div>
       <label className="block">
         <span className="mb-2 block text-[1.0625rem] font-semibold text-paper">

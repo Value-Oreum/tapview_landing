@@ -5,8 +5,10 @@ import { DogClip } from "@/components/DogMotion";
 import gsap from "gsap";
 import Dog from "@/components/Dog";
 import { prefersReducedMotion } from "@/components/providers/PrefsProvider";
+import CoffeeIcon from "@/components/CoffeeIcon";
+import { COFFEE_GOAL, COFFEE_PRIZE, COFFEE_TERMS } from "@/lib/event";
 
-type Result = { code: string; kind: "personal" | "family" | "org"; beta: boolean; date: string };
+type Result = { code: string; kind: "personal" | "family" | "org"; beta: boolean; date: string; dup?: boolean };
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 /** 카드 이미지를 캔버스로 그려 PNG로 만든다 (1080×1350, 인스타그램 세로 비율) */
@@ -66,6 +68,7 @@ async function drawCard(code: string, date: string): Promise<Blob | null> {
 export default function DoneView() {
   const [r, setR] = useState<Result | null>(null);
   const [copied, setCopied] = useState("");
+  const [invites, setInvites] = useState<number | null>(null);
   const stampRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -78,6 +81,19 @@ export default function DoneView() {
       setR({ code: "", kind: "personal", beta: false, date: new Date().toISOString().slice(0, 10) });
     }
   }, []);
+
+  // 내 링크 진행도 (지금까지 몇 명이 내 링크로 찍었는지)
+  useEffect(() => {
+    if (!r?.code || r.kind === "org") return;
+    let alive = true;
+    fetch(`/api/invite?code=${r.code}`)
+      .then((res) => res.json())
+      .then((o: { ok?: boolean; count?: number }) => alive && o.ok && typeof o.count === "number" && setInvites(o.count))
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [r]);
 
   // 도장 '쾅'
   useIsoLayoutEffect(() => {
@@ -181,18 +197,53 @@ export default function DoneView() {
 
       <div>
         <h1 className="text-[clamp(2rem,4.4vw,3.5rem)] leading-[1.12] font-semibold tracking-[-0.04em] text-paper">
-          첫 눈도장, 쾅!
+          {r.dup ? "이미 첫 눈도장을" : "첫 눈도장, 쾅!"}
           <br />
-          <span className="text-mint">탭뷰어가 되셨어요.</span>
+          <span className="text-mint">{r.dup ? "찍어 두셨어요." : "탭뷰어가 되셨어요."}</span>
         </h1>
         <p className="mt-5 text-[1.125rem] leading-[1.7] text-paper/72">
-          신청 확인 메일을 보내 드렸어요. 출시 소식과 1년 무료 혜택은 이메일과 문자로 가장 먼저 알려 드릴게요.
-          {r.beta && " 체험단(평생 눈도장) 신청도 함께 접수되었습니다."}
+          {r.dup
+            ? "같은 휴대폰 번호로 신청하신 기록이 있어, 처음 받으신 눈도장 번호와 내 링크로 안내해 드려요."
+            : "신청 확인 메일을 보내 드렸어요. 출시 소식과 1년 무료 혜택은 이메일과 문자로 가장 먼저 알려 드릴게요."}
+          {!r.dup && r.beta && " 체험단(평생 눈도장) 신청도 함께 접수되었습니다."}
         </p>
+        {r.code && (
+          <p className="mt-3 text-[0.9375rem] leading-[1.6] text-paper/55">
+            <b className="text-paper/80">{r.code}</b>는 내 눈도장 번호예요. 따로 입력하실 곳은 없고, 아래 내 링크에 들어가 친구 초대를 세는 데
+            쓰여요. 같은 번호로 다시 신청해도 번호와 링크는 바뀌지 않아요.
+          </p>
+        )}
 
-        <div className="mt-8 rounded-[24px] border border-mint/30 bg-mint/[0.06] p-5 text-[1.0625rem] leading-[1.6] text-paper/85">
-          <b className="text-paper">내 링크로 3명이 첫 눈도장을 찍으면</b>, 평생 눈도장 체험단에 우선 선발됩니다.
+        <div className="relative mt-8 rounded-[24px] border border-tap/40 bg-tap/[0.07] p-5 pr-24 sm:pr-28">
+          <p className="text-[0.875rem] font-semibold text-tap">친구 초대 이벤트</p>
+          <p className="mt-1 text-[1.125rem] leading-[1.5] font-semibold text-paper">
+            내 링크로 {COFFEE_GOAL}명이 첫 눈도장을 찍으면
+            <br />
+            <span className="text-tap">{COFFEE_PRIZE}</span>을 보내 드려요.
+          </p>
+          <p className="mt-1 text-[0.9375rem] text-paper/70">평생 눈도장 체험단에도 우선 선발됩니다.</p>
+          {invites !== null && (
+            <div className="mt-4 flex items-center gap-3" aria-label={`지금까지 ${invites}명 / ${COFFEE_GOAL}명`}>
+              <div className="flex gap-1.5" aria-hidden>
+                {Array.from({ length: COFFEE_GOAL }, (_, i) => (
+                  <span key={i} className={`h-3 w-8 rounded-full ${i < invites ? "bg-tap" : "bg-paper/15"}`} />
+                ))}
+              </div>
+              <span className="text-[0.9375rem] font-semibold text-paper/85">
+                {invites >= COFFEE_GOAL ? "달성! 확인 후 쿠폰을 보내 드려요" : `지금까지 ${invites}명 / ${COFFEE_GOAL}명`}
+              </span>
+            </div>
+          )}
+          <CoffeeIcon className="absolute top-1/2 right-5 h-20 w-auto -translate-y-1/2 sm:h-24" />
         </div>
+        <details className="mt-2 px-1 text-[0.875rem] leading-[1.6] text-paper/50">
+          <summary className="cursor-pointer py-1 text-paper/60">이벤트 안내</summary>
+          <ul className="mt-1 grid gap-1">
+            {COFFEE_TERMS.map((t) => (
+              <li key={t}>· {t}</li>
+            ))}
+          </ul>
+        </details>
 
         <div className="mt-8 grid gap-3 sm:grid-cols-2">
           <button type="button" onClick={() => share(parentText, "parent")} className="share-btn share-btn--primary">

@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { DogWalker } from "@/components/DogMotion";
 import { useRouter } from "next/navigation";
 import Dog from "@/components/Dog";
+import EmailField from "./EmailField";
+import { readRef } from "@/lib/ref";
 
 type Kind = "personal" | "family" | "org";
 
@@ -17,6 +19,13 @@ const AGES = ["45세 미만", "45~54세", "55~64세", "65~74세", "75세 이상"
 const DEVICES = ["갤럭시", "다른 안드로이드", "아이폰", "잘 모름"];
 const PAINS = ["문자·카톡", "은행·송금", "병원·약국 안내", "쇼핑·성분표", "뉴스·긴 글", "사진 속 글씨"];
 const SOURCES = ["복지관", "가족·지인", "검색", "SNS·유튜브", "기사", "기타"];
+const BETA_INFO: [string, string][] = [
+  ["하는 일", "출시 전 안드로이드 앱을 먼저 설치해 1~4주 동안 평소처럼 써 보고, 짧은 설문이나 통화로 불편했던 점을 알려 주세요."],
+  ["시기", "2027년 상반기, 정식 출시 전 (예정)"],
+  ["대상", "갤럭시 등 안드로이드 휴대폰을 쓰는 45세 이상 본인, 또는 부모님 대신 신청한 가족"],
+  ["선발", "기종·연령대·사용 상황을 고려해 5명 → 30명 → 100명 순서로 뽑아 문자로 연락드려요."],
+  ["혜택", "끝까지 참여하시면 평생 무료 (본인과 가족 2명까지)"],
+];
 const RELATIONS = ["어머니", "아버지", "배우자", "기타 가족"];
 const REGIONS = ["서울", "경기", "인천", "대구", "충남", "충북", "대전", "세종", "부산", "울산", "경남", "경북", "광주", "전남", "전북", "강원", "제주"];
 const SIZES = ["50명 미만", "50~199명", "200~499명", "500명 이상"];
@@ -74,6 +83,23 @@ function Field({ label, req, hint, children }: { label: string; req?: boolean; h
   );
 }
 
+/** 칸이 여러 개인 입력(이메일)용: label을 첫 칸에 연결 */
+function FieldBox({ label, htmlFor, hint, children }: { label: string; htmlFor: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label htmlFor={htmlFor} className="mb-2 block text-[1.0625rem] font-semibold text-paper">
+        {label}
+        <span className="ml-1 text-tap">*</span>
+      </label>
+      {children}
+      {hint && <span className="mt-2 block text-[0.9375rem] text-paper/50">{hint}</span>}
+    </div>
+  );
+}
+
+/** 전화번호는 숫자만 (하이픈·공백은 자동으로 뺀다) */
+const onlyDigits = (v: string) => v.replace(/\D/g, "").slice(0, 11);
+
 function Group({ label, req, children }: { label: string; req?: boolean; children: React.ReactNode }) {
   return (
     <fieldset>
@@ -123,6 +149,11 @@ export default function ReserveForm() {
     e.preventDefault();
     if (busy) return;
     setError("");
+    if (f.email && f.email.endsWith("@")) {
+      setError("이메일 @ 뒤 주소를 골라 주세요.");
+      requestAnimationFrame(() => formRef.current?.querySelector<HTMLElement>("[data-error]")?.focus());
+      return;
+    }
     setBusy(true);
     const data: Record<string, unknown> = { ...f, privacy, marketing };
     if (kind !== "org") Object.assign(data, { age, device, pains, source, beta, storyPublic });
@@ -131,7 +162,7 @@ export default function ReserveForm() {
     let ref = "";
     let utm = "";
     try {
-      ref = sessionStorage.getItem("tv-ref") || "";
+      ref = readRef();
       utm = sessionStorage.getItem("tv-utm") || "";
     } catch {}
     try {
@@ -145,7 +176,7 @@ export default function ReserveForm() {
       try {
         sessionStorage.setItem(
           "tv-result",
-          JSON.stringify({ code: out.code, kind, beta, date: new Date().toISOString().slice(0, 10) }),
+          JSON.stringify({ code: out.code, kind, beta, dup: out.dup === true, date: new Date().toISOString().slice(0, 10) }),
         );
       } catch {}
       router.push("/reserve/done");
@@ -158,37 +189,27 @@ export default function ReserveForm() {
 
   const contactBlock = (who: string) => (
     <div className="grid gap-5 sm:grid-cols-2">
-      <div className="sm:col-span-2">
-        <Field label={`${who} 이름`} req>
-          <input className="field" name="name" autoComplete="name" required value={f.name || ""} onChange={set("name")} />
-        </Field>
-      </div>
-      <Field label="휴대폰 번호" req hint="체험단·출시 안내 연락용">
+      <Field label={`${who} 이름`} req>
+        <input className="field" name="name" autoComplete="name" required value={f.name || ""} onChange={set("name")} />
+      </Field>
+      <Field label="휴대폰 번호" req hint="숫자만 입력해 주세요 (- 없이). 체험단·출시 안내와 이벤트 쿠폰 발송용">
         <input
           className="field"
           name="phone"
           type="tel"
-          inputMode="tel"
+          inputMode="numeric"
           autoComplete="tel"
-          placeholder="010-1234-5678"
+          placeholder="01012345678"
           required
           value={f.phone || ""}
-          onChange={set("phone")}
+          onChange={(e) => setF((p) => ({ ...p, phone: onlyDigits(e.target.value) }))}
         />
       </Field>
-      <Field label="이메일" req hint="신청 확인 메일을 보내 드려요">
-        <input
-          className="field"
-          name="email"
-          type="email"
-          inputMode="email"
-          autoComplete="email"
-          placeholder="name@example.com"
-          required
-          value={f.email || ""}
-          onChange={set("email")}
-        />
-      </Field>
+      <div className="sm:col-span-2">
+        <FieldBox label="이메일" htmlFor="email-local" hint="신청 확인 메일을 보내 드려요">
+          <EmailField id="email-local" value={f.email || ""} onChange={(v) => setF((p) => ({ ...p, email: v }))} />
+        </FieldBox>
+      </div>
     </div>
   );
 
@@ -277,12 +298,22 @@ export default function ReserveForm() {
               <Field label="직함">
                 <input className="field" name="title" autoComplete="organization-title" value={f.title || ""} onChange={set("title")} />
               </Field>
-              <Field label="연락처" req>
-                <input className="field" name="phone" type="tel" inputMode="tel" placeholder="010-1234-5678" value={f.phone || ""} onChange={set("phone")} />
+              <Field label="연락처" req hint="숫자만 입력해 주세요 (- 없이)">
+                <input
+                  className="field"
+                  name="phone"
+                  type="tel"
+                  inputMode="numeric"
+                  placeholder="01012345678"
+                  value={f.phone || ""}
+                  onChange={(e) => setF((p) => ({ ...p, phone: onlyDigits(e.target.value) }))}
+                />
               </Field>
-              <Field label="이메일" req>
-                <input className="field" name="email" type="email" inputMode="email" value={f.email || ""} onChange={set("email")} />
-              </Field>
+              <div className="sm:col-span-2">
+                <FieldBox label="이메일" htmlFor="org-email-local">
+                  <EmailField id="org-email-local" value={f.email || ""} onChange={(v) => setF((p) => ({ ...p, email: v }))} />
+                </FieldBox>
+              </div>
               <Field label="지역" req>
                 <select className="field" value={region} onChange={(e) => setRegion(e.target.value)}>
                   <option value="">선택해 주세요</option>
@@ -316,13 +347,23 @@ export default function ReserveForm() {
             </Group>
 
             <div className={`relative rounded-[28px] border p-6 transition-colors sm:p-7 ${beta ? "border-mint/60 bg-mint/[0.06]" : "border-paper/12 bg-paper/[0.03]"}`}>
-              <label className="check">
+              <p className="text-[0.875rem] font-semibold text-mint/80">체험단 = 평생 눈도장</p>
+              <p className="mt-1 pr-20 text-[1.25rem] leading-[1.4] font-semibold text-paper sm:pr-24">
+                출시 전에 먼저 써 보고 의견을 주시면, 평생 무료로 드려요.
+              </p>
+              <dl className="mt-4 grid gap-2.5 text-[0.9375rem] leading-[1.6] text-paper/75">
+                {BETA_INFO.map(([k, v]) => (
+                  <div key={k} className="grid grid-cols-[4.5rem_minmax(0,1fr)] gap-2">
+                    <dt className="font-semibold text-paper">{k}</dt>
+                    <dd>{v}</dd>
+                  </div>
+                ))}
+              </dl>
+              <label className="check mt-5 border-t border-paper/10 pt-5">
                 <input type="checkbox" checked={beta} onChange={(e) => setBeta(e.target.checked)} />
                 <span>
                   <b className="text-[1.125rem]">체험단(평생 눈도장)도 신청할게요</b>
-                  <span className="mt-1 block text-[0.9375rem] text-paper/60">
-                    출시 전에 먼저 써 보고 의견을 주시면 평생 무료 (본인+가족 2명). 5명 → 30명 → 100명 순서로 선발해 따로 연락드려요.
-                  </span>
+                  <span className="mt-1 block text-[0.9375rem] text-paper/60">뽑히지 않아도 첫 눈도장(출시 후 1년 무료)은 그대로예요.</span>
                 </span>
               </label>
               {beta && (

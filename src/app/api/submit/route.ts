@@ -70,9 +70,11 @@ export async function POST(request: Request) {
       redirect: "follow",
       signal: AbortSignal.timeout(15000),
     });
-    const out = (await res.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+    const out = (await res.json().catch(() => null)) as { ok?: boolean; error?: string; code?: string; dup?: boolean } | null;
     if (!out?.ok) throw new Error(out?.error || `apps script ${res.status}`);
-    return Response.json({ ok: true, code });
+    // 같은 휴대폰으로 이미 신청했으면 Apps Script가 기존 코드를 돌려준다 (내 링크가 바뀌지 않게)
+    const finalCode = typeof out.code === "string" && /^TV-[A-Z0-9]{4}$/.test(out.code) ? out.code : code;
+    return Response.json({ ok: true, code: finalCode, dup: out.dup === true });
   } catch (e) {
     console.error("[submit] 전달 실패", e);
     return Response.json({ ok: false, error: m.fail }, { status: 502 });
