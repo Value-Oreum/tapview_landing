@@ -252,6 +252,29 @@ body {
   background: radial-gradient(closest-side, rgb(0 0 0 / 0.38), transparent);
 }
 
+/* 스토리 폰 화면: 읽기 힘든 순간 — 초점이 맞았다 풀렸다 */
+.screen-squint {
+  filter: blur(2.4px);
+  animation: squint 3.2s ease-in-out infinite;
+}
+@keyframes squint {
+  0%,
+  100% {
+    filter: blur(2px);
+  }
+  50% {
+    filter: blur(3.6px);
+  }
+}
+html[data-motion="reduce"] .screen-squint {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .screen-squint {
+    animation: none;
+  }
+}
+
 /* 제목 단어별 흐림 → 선명 */
 .blur-word {
   display: inline-block;
